@@ -1,0 +1,10 @@
+node_modules
+
+# generated
+*.output
+*.tab.c
+*.tab.h
+*.yy.c
+
+# output
+pl0c
