@@ -5,15 +5,22 @@
 %}
 
 %union {
+  char * name;
   int val;
 }
 
-%token <val> INT_LITERAL
-%token ADD SUB
+%token CONST VAR IF THEN BGN END WHILE READ WRITE WRITELN DO FUN
+
+%token <val> NUMBER
+%token IDENT
+%token ADD SUB MUL DIV ASN EQL LT GT LEQ GEQ
+%token L_PAREN R_PAREN L_BRACKET R_BRACKET
 %type <val> expr stmt
 
-%left '+' '-' 
 %left '*' '/'
+%left '+' '-' 
+%left '<' '>' '>=' '<='
+%left ':='
 
 %%
 stmts
@@ -27,16 +34,31 @@ stmt
 expr
   : expr ADD expr
   {
-    printf("ADD %d %d", $1, $3);
+    printf("(%d + %d)\n", $1, $3);
     $$ = $1 + $3;
   }
   | expr SUB expr
   {
-    printf("SUB %d, %d", $1, $3);
+    printf("(%d - %d)\n", $1, $3);
     $$ = $1 - $3;
   }
-  | INT_LITERAL
-  ;                 
+  | expr MUL expr
+  {
+    printf("(%d * %d)\n", $1, $3);
+    $$ = $1 * $3;
+  }
+  | expr DIV expr
+  {
+    printf("(%d / %d)\n", $1, $3);
+    $$ = $1 / $3;
+  }
+  | L_PAREN expr R_PAREN
+  {
+    $$ = $2;
+  }
+  | IDENT
+  | NUMBER
+  ;
 %%
 
 int yyerror(char const *str) {
