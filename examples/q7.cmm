@@ -1,0 +1,10 @@
+begin
+  n := 0
+  max := 0
+  for i := 0; i < 10; i++ {
+    read n
+    if max < n then max = n
+  }
+  write max
+  writeln
+end

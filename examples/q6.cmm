@@ -1,0 +1,10 @@
+begin
+  sum := 0
+  n := 0
+  read n
+  for i := 1; i <= n; i++ {
+    sum += i
+  }
+  write sum
+  writeln
+end

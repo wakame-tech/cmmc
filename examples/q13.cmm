@@ -1,0 +1,16 @@
+func f1(n) {
+  if n == 0 then return 1
+  return n + f2(n - 1)
+}
+
+func f2(n) {
+  if n == 0 then return 1
+  return n * f1(n - 1)
+}
+
+begin
+  n := 0
+  read n
+  write f1(n)
+  writeln
+end
