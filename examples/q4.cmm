@@ -1,6 +1,7 @@
 func gcd(x, y) {
   if y == 0 then return x
-  return gcd(y, x % y)
+  // x % y == x - y * (x // y)
+  return gcd(y, x - y * (x / y))
 }
 
 begin
