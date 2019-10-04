@@ -1,2 +1,57 @@
-( INT, 0, 4 )
-( LAB,  )
+( JMP, 0, 3 ) // goto main
+
+( LAB, 0, 1 ) // function gcd begin
+( INT, 0, 3 ) // 3 + 0
+
+( LOD, 0, -1 ) // y
+( LIT, 0, 0 ) // 0
+( OPR, 0, 8 ) // ==
+( JPC, 0, 2 ) // if not
+
+( LOD, 0, -2 ) // x
+( RET, 0, 1 ) // return
+
+( LAB, 0, 2 ) // else
+( LOD, 0, -1 ) // y
+
+( LOD, 0, -2 ) // x
+( LOD, 0, -1 ) // y
+( LOD, 0, -2 ) // x
+( LOD, 0, -1 ) // y
+( OPR, 0, 5 ) // /
+( OPR, 0, 4 ) // *
+( OPR, 0, 3 ) // -
+
+( CAL, 0, 1 ) // gcd()
+( RET, 0, 1 ) // return
+( OPR, 0, 0 ) // end
+
+( LAB, 0, 3 ) // main begin
+( INT, 0, 6 ) // 3 + 3
+( CSP, 0, 0 ) // read
+( STO, 0, 3 ) // x :=
+( CSP, 0, 0 ) // read
+( STO, 0, 4 ) // y :=
+
+( LOD, 0, 3 ) // x
+( LOD, 0, 4 ) // y
+( OPR, 0, 10 ) // <
+( JPC, 0, 4 ) // if
+
+( LOD, 0, 3 ) // x
+( STO, 0, 5 ) // tmp :=
+( LOD, 0, 4 ) // y
+( STO, 0, 3 ) // x :=
+( LOD, 0, 5 ) // tmp
+( STO, 0, 4 ) // y :=
+
+( LAB, 0, 4 ) // else
+
+( LOD, 0, 3 ) // x
+( LOD, 0, 4 ) // y
+( CAL, 1, 1 ) // gcd()
+( CSP, 0, 1 ) // write
+
+( CSP, 0, 2 ) // writeln
+
+( OPR, 0, 0 ) // end
