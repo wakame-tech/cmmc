@@ -1,5 +1,6 @@
 /* ---------------------- common.c ------------------------- */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #ifdef NEED_MALLOC
 #include <malloc.h>
@@ -15,9 +16,9 @@ void error(s) char *s; {
 char * strsave(s) char *s; {
   char *p;
     
-  if((p = (char *)malloc(strlen(s) + 1 )) == NULL) {
-    perror( "malloc" );
-    exit( 1 );
+  if((p = (char *)malloc(strlen(s) + 1)) == NULL) {
+    perror("malloc");
+    exit(1);
   }
   return strcpy(p, s);
 }

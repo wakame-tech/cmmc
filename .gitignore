@@ -4,7 +4,11 @@
 *.tab.h
 *.yy.c
 
-# output
+# bin
 vm/pl0vm
 compiler/pl0c
+test/pl0dc
+test/pl0dm
+
+# output
 *.o

@@ -5,6 +5,8 @@
 #include "common.h"
 #include "code.h"
 
+int is_debug = 0;
+
 #define BSIZE 50
 /* global variables for interpreter */
 #define STACKSIZE 500
@@ -26,8 +28,7 @@ static void wrcode(int c, instruction c2[]);
 
 /* trace static link l times, where l is the difference */
 /* of current and referenced static nesting levels */
-int l;
-int base(l) {
+int base(l) int l; {
   int b1;
   b1	= b; /* b points to the area of static link */
   while(l > 0) {
@@ -50,16 +51,17 @@ void interpreter() {
 
   do {
     /* stack dump */
-    printf("@ L%d (%d, %d, %d) stack [ ", p, f, l, a);
-    for (int i = 1; i < t; i++) {
-      if (i == base(l)) printf("| ");
-      printf("%d ", s[i]);
+    if (is_debug) {
+      printf("@ L%d (%d, %d, %d) stack [ ", p, f, l, a);
+      for (int i = 1; i < t; i++) {
+        if (i == base(l)) printf("| ");
+        printf("%d ", s[i]);
+      }
+      printf("]\n");
     }
-    printf("]\n");
 
     i = code[p++]; /* get an instruction */
 	  f = i.f;  l = i.l;  a = i.a;
-    // printf("p = %d inst: (%d, %d, %d)\n", p - 1, f, l, a);
 	  switch(f) {
 	    case O_LIT : s[++t] = a;  break;
 	    case O_OPR : 
@@ -128,39 +130,6 @@ mnemonic mntbl[] = {
   { "   ", O_BAD }, { "RET", O_RET }
 };
 
-int main(int argc, char * argv[]) {
-  FILE * codef;
-  char buf[BSIZE];
-
-  codef = fopen(argv[1], "r");
-  if(codef == NULL){
-    perror("code.output");
-    exit(EXIT_FAILURE);
-  }
-
-  while(fgets(buf, BSIZE, codef) != 0){
-    // for skip empty line
-    if (buf[0] == '\n' || buf[0] == '#') continue;
-    code2[cx2] = getcode(buf);
-    cx2++;
-    printf("%d %s\n", cx2, buf);
-  }
-
-  if (ferror(codef) != 0) {
-    perror("getcode");
-    exit(EXIT_FAILURE);
-  }
-
-  if (fclose(codef) != 0) {
-    perror("code.output");
-    exit(EXIT_FAILURE);
-  }
-
-  linearize(code2);
-
-  interpreter();
-}
-
 opecode mnemonic2i(char * f){
   for(int i = 0; i < 12; i++){
     if (strcmp(mntbl[i].sym, f) == 0) {
@@ -220,10 +189,6 @@ instruction getcode(char * buf) {
   return i;
 }
 
-/***************************************************************/
-/* code from code.c                                            */
-/***************************************************************/
-
 /* print code stored in array code[] */
 static void wrcode(int c, instruction c2[]) {
   int i, f, l, a;
@@ -238,7 +203,6 @@ static void wrcode(int c, instruction c2[]) {
   }
   printf("\f");
 }
-
 
 /* transform list structure code cp to array code[] */
 /* also do backpatching */
@@ -311,4 +275,41 @@ void linearize(instruction c[]) {
     }
   }
   wrcode(cx - 1, code);
+}
+
+int main(int argc, char * argv[]) {
+  FILE * codef;
+  char buf[BSIZE];
+
+  codef = fopen(argv[1], "r");
+  if(codef == NULL){
+    perror("code.output");
+    exit(EXIT_FAILURE);
+  }
+
+  if (argc >= 3 && strcmp(argv[2], "-d") == 0) {
+    is_debug = 1;
+  }
+
+  while(fgets(buf, BSIZE, codef) != 0){
+    // for skip empty line
+    if (buf[0] == '\n' || buf[0] == '#') continue;
+    code2[cx2] = getcode(buf);
+    cx2++;
+    printf("%d %s\n", cx2, buf);
+  }
+
+  if (ferror(codef) != 0) {
+    perror("getcode");
+    exit(EXIT_FAILURE);
+  }
+
+  if (fclose(codef) != 0) {
+    perror("code.output");
+    exit(EXIT_FAILURE);
+  }
+
+  linearize(code2);
+
+  interpreter();
 }
