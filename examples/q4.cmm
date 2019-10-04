@@ -1,7 +1,7 @@
 
 function gcd(x, y)
 begin
-  if y = 0 then return y;
+  if y = 0 then return x;
   return gcd(y, x - y * (x / y));
 end
 

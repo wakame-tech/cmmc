@@ -1,12 +1,21 @@
-func gcd(x, y) {
-  if y == 0 then return x
-  return gcd(y, x % y)
-}
 
+function gcd(x, y)
 begin
-  x := 0, y := 0
-  read x
-  read y
-  write x * y / gcd(x, y)
-  writeln
+  if y = 0 then return x;
+  return gcd(y, x - y * (x / y));
 end
+
+var x, y, tmp;
+begin
+  x := read;
+  y := read;
+  
+  if x < y then begin;
+    tmp := x;
+    x := y;
+    y := tmp;
+  end
+
+  write x * y / gcd(x, y);
+  writeln;
+end.

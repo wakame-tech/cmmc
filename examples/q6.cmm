@@ -1,10 +1,14 @@
+var sum, n;
+
 begin
-  sum := 0
-  n := 0
-  read n
-  for i := 1; i <= n; i++ {
-    sum += i
-  }
+  sum := 0;
+  n := read;
+
+  while n > 0 do begin
+    sum := sum + n;
+    n := n - 1;
+  end
+
   write sum
   writeln
-end
+end.

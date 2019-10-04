@@ -1,7 +1,7 @@
 ( INT, 0, 3 )
-( CSP, 0, 0 )
-( CSP, 0, 0 )
-( OPR, 0, 2 )
-( CSP, 0, 1 )
+( CSP, 0, 0 ) // read
+( CSP, 0, 0 ) // read
+( OPR, 0, 2 ) // +
+( CSP, 0, 1 ) // write
 ( CSP, 0, 2 )
 ( OPR, 0, 0 )

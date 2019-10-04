@@ -1,0 +1,44 @@
+( INT, 0, 6 ) // 3 + 3
+( LIT, 0, 0 ) // 0
+( STO, 0, 3 ) // max :=
+( LIT, 0, 10 ) // 10
+( STO, 0, 4 ) // i :=
+
+( LAB, 0, 1 ) // 1:
+( LOD, 0, 4 ) // i
+( LIT, 0, 0 ) // 0
+( OPR, 0, 12 ) // >
+( JPC, 0, 3 ) // if not
+
+( CSP, 0, 0 ) // read
+( STO, 0, 5 ) // n :=
+
+( LOD, 0, 3 ) // max
+( LOD, 0, 5 ) // n
+( OPR, 0, 10 ) // <
+( JPC, 0, 2 ) // if not
+
+( LOD, 0, 5 ) // n
+( STO, 0, 3 ) // max :=
+
+( LAB, 0, 2 ) // 2:
+
+( LOD, 0, 4 ) // i
+( LIT, 0, 1 ) // 1
+( OPR, 0, 3 ) // -
+( STO, 0, 4 ) // i :=
+
+( JMP, 0, 1 ) // goto 1:
+
+( LOD, 0, 4 ) // i
+( LIT, 0, 1 ) // 1
+( OPR, 0, 3 ) // -
+( STO, 0, 4 ) // i :=
+
+( JMP, 0, 1 ) goto 1:
+
+( LAB, 0, 3 ) // 3:
+( LOD, 0, 3 ) // max
+( CSP, 0, 1 ) // write
+( CSP, 0, 2 ) // writeln
+( OPR, 0, 0 )
