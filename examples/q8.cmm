@@ -1,21 +1,49 @@
+var i, tmp, v1, v2, v3, v4, v5;
+
 begin
-  a := [0; 5]
-  for i := 0; i < 5; i++ {
-    read a[i]
-  }
+  i := 5;
+  v1 := read;
+  v2 := read;
+  v3 := read;
+  v4 := read;
+  v5 := read;
 
-  for i := 0; i < 5; i++ {
-    for j := 0; j < 5; j++ {
-      if a[i] > a[j] {
-        tmp := a[i]
-        a[i] = a[j]
-        a[j] = tmp
-      }
-    }
-  }
+  while i > 0 do begin;
+    if v1 > v2 then begin
+      tmp := v1;
+      v1 := v2;
+      v2 := tmp;
+    end;
 
-  for i := 0; i < 5; i++ {
-    write a[i]
-    writeln
-  }
-end
+    if v2 > v3 then begin
+      tmp := v2;
+      v2 := v3;
+      v3 := tmp;
+    end;
+
+    if v3 > v4 then begin
+      tmp := v3;
+      v3 := v4;
+      v4 := tmp;
+    end;
+
+    if v4 > v5 then begin
+      tmp := v4;
+      v4 := v5;
+      v5 := tmp;
+    end;
+    
+    i := i - 1;
+  end
+
+  write v1;
+  writeln;
+  write v2;
+  writeln;
+  write v3;
+  writeln;
+  write v4;
+  writeln;
+  write v5;
+  writeln;
+end.

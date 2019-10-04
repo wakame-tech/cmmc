@@ -5,5 +5,6 @@
 *.yy.c
 
 # output
-pl0c
-vm
+vm/pl0vm
+compiler/pl0c
+*.o
