@@ -19,7 +19,12 @@ int yywrap() {
 "write" return WRITE;
 "writeln" return WRITELN;
 "do" return DO;
+"for" return FOR;
 "function" return FUN;
+
+";" return SEMICOLON;
+"," return COMMA;
+"." return DOT;
 
 "+" return ADD;
 "-"	return SUB;
@@ -27,20 +32,21 @@ int yywrap() {
 "/" return DIV;
 ":=" return ASN;
 "=" return EQL;
+"!=" return NOTEQ;
 "<" return LT;
 ">" return GT;
-"<=" return LEQ;
-">=" return GEQ;
 
 "(" return L_PAREN;
 ")" return R_PAREN;
 "{" return L_BRACKET;
 "}" return R_BRACKET;
+"[" return L_SQBRACKET;
+"]" return R_SQBRACKET;
 [ \n\t]
 
 0|[1-9][0-9]* {
-    yylval.val = atoi(yytext);
-    return NUMBER;
+  yylval.val = atoi(yytext);
+  return NUMBER;
 }
 
 [a-zA-Z]([a-zA-Z0-9])* {

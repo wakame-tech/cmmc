@@ -1,7 +1,7 @@
 CC	= cc
 
 pl0c	: y.tab.c lex.yy.c
-	$(CC) y.tab.c lex.yy.c -o pl0c
+	$(CC) y.tab.c lex.yy.c -ly -o pl0c
 
 y.tab.c	: parser.y
 	yacc -dv -y parser.y
