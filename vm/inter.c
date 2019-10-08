@@ -45,7 +45,7 @@ void interpreter() {
   opecode f; /* operation code */
   /* l = level difference or 0 a = displacement or sub-operation or number */
   int l, a;
-  printf( "start PL/0\n" );
+  if (is_debug) printf( "start PL/0\n" );
   t = 0;  b = 1;  p = 1;
   s[1] = s[2] = s[3] = 0; /* static link, dynamic link, ret. addr. of main */
 
@@ -73,7 +73,7 @@ void interpreter() {
           case P_MUL: --t;  s[t] = s[t] * s[t+1]	   ;  break; 
           case P_DIV: --t;  s[t] = s[t] / s[t+1]	   ;  break; 
           case P_ODD:	   ;  s[t] = s[t] % 2		   ;  break;
-          // case P_MOD: --t;  s[t] = s[t] % s[t+1]     ;  break;
+          case P_MOD: /* --t;  s[t] = s[t] % s[t+1]; */  break;
           case P_EQ:	--t;  s[t] = ( s[t] == s[t+1] )	   ;  break;
           case P_NE:	--t;  s[t] = ( s[t] != s[t+1] )	   ;  break;
           case P_LT:	--t;  s[t] = ( s[t] <  s[t+1] )	   ;  break;
@@ -103,13 +103,13 @@ void interpreter() {
 	    case O_CSP:
 	      switch((cspcode)a) {
           case RDI: /* read(var) */
-            if( scanf("%d",&s[++t])!=1 ) printf( "error read\n" );
+            if(scanf("%d",&s[++t]) != 1) printf( "error read\n" );
             break;
           case WRI: /* write(exp) */
-            printf( "%10d\n", s[t--] );
+            printf("%d\n", s[t--]);
             break;
           case WRL: /* writeln */
-            putchar( '\n' );
+            putchar('\n');
             break;
           }
 	      break;
@@ -117,7 +117,7 @@ void interpreter() {
 	  }
   } while( p != 0 );
 
-  printf( "end PL/0\n" );
+  if (is_debug) printf( "end PL/0\n" );
 }
 
 /* table for mnemonic code */
@@ -193,15 +193,15 @@ instruction getcode(char * buf) {
 static void wrcode(int c, instruction c2[]) {
   int i, f, l, a;
   
-  printf( "code table\n\n" );
+  if (is_debug) printf( "code table\n\n" );
 
   for(i = 1; i <= c; i++) {
     f = c2[i].f;
     l = c2[i].l;
     a = c2[i].a;
-    printf( "%4d [ %s, %3d, %3d ]\n", i, mntbl[f].sym, l, a );
+    if (is_debug) printf( "%4d [ %s, %3d, %3d ]\n", i, mntbl[f].sym, l, a );
   }
-  printf("\f");
+  if (is_debug) printf("\f");
 }
 
 /* transform list structure code cp to array code[] */
@@ -227,7 +227,7 @@ void linearize(instruction c[]) {
       case O_LAB:
         /* label 'a' was unused */
         if( label[a] == 0 ) {
-          printf("label %d is %d at %d\n", a, cx, tmpcx);
+          if (is_debug) printf("label %d is %d at %d\n", a, cx, tmpcx);
           /* let it be defined. let label[a] point to its address */
           label[a] = cx;
         } else if (label[a] < 0) {
@@ -296,7 +296,7 @@ int main(int argc, char * argv[]) {
     if (buf[0] == '\n' || buf[0] == '#') continue;
     code2[cx2] = getcode(buf);
     cx2++;
-    printf("%d %s\n", cx2, buf);
+    // printf("%d %s\n", cx2, buf);
   }
 
   if (ferror(codef) != 0) {

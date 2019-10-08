@@ -1,16 +1,21 @@
+%union {
+  char * name;
+  int val;
+  /* enum op_type_e */ int optype;
+}
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "codegen.h"
 // #define YYDEBUG 1
 
 int yylex();
 int yyerror(const char * s);
-%}
 
-%union {
-  char * name;
-  int val;
-}
+int seek = 0;
+
+%}
 
 %token CONST VAR IF THEN BGN END WHILE READ WRITE WRITELN DO FOR FUN
 %token SEMICOLON COMMA DOT
@@ -19,9 +24,11 @@ int yyerror(const char * s);
 %token ADD SUB MUL DIV ASN EQL NOTEQ LT GT
 %token L_PAREN R_PAREN L_BRACKET R_BRACKET L_SQBRACKET R_SQBRACKET
 
-%type <val> code main functions function parameter_list block stmts stmt expr binary_op
-%type <val> IDENT READ WRITE WRITELN
+%type <val> code blocks block parameter_list stmts stmt expr
+%type <optype> binary_op
+%type <val> READ WRITE WRITELN
 %type <val> NUMBER
+%type <name> IDENT
 
 %left '*' '/' '%'
 %left '+' '-' 
@@ -30,88 +37,71 @@ int yyerror(const char * s);
 
 %%
 code
-  : functions main {
-    printf("%d %d\n", $1, $2);
-    $$ = 0;
-  }
-  | main {
-    printf("OPR 0");
+  : blocks DOT {
+    printf("end\n");
     $$ = 0;
   }
 
-main
-  : block DOT { $$ = 0; }
+blocks
+  : block
+  | blocks block
 
-functions
-  : function { $$ = 0; }
-  | functions function { $$ = 0; }
-
-function
-  : FUN IDENT L_PAREN parameter_list R_PAREN block
+block
+  : FUN IDENT L_PAREN parameter_list R_PAREN stmts
   {
-    printf("%d\n", $2);
+    printf("fun : %s\n", $2);
+
     $$ = 0;
+  }
+  | stmts {
+    printf("> block\n");
   }
 
 parameter_list
   : IDENT { $$ = 0; }
   | parameter_list COMMA IDENT { $$ = 0; }
 
-block
-  : BGN stmts END
-  {
-    $$ = 0;
-  }
-
 stmts
-  : stmt { $$ = 0; }
-  | stmts stmt { $$ = 0; }
+  : stmt
+  | stmts stmt
   ;
 
 stmt
-  : expr SEMICOLON
-  { $$ = $1; }
+  : expr SEMICOLON { $$ = $1; }
+  | IDENT ASN expr { $$ = 0; }
+  | BGN stmts END { printf("> begin\n"); $$ = $2; }
+  | IF expr THEN { printf("if"); $$ = ++seek; } stmt {}
+  | WRITE expr { printf("write\n"); $$ = 0; }
 
 binary_op
-  : ADD { $$ = 2; }
-  | SUB { $$ = 3; }
-  | MUL { $$ = 4; }
-  | DIV { $$ = 5; }
-  | LT { $$ = 6; }
-  | GT { $$ = 7; }
-  | LT EQL { $$ = 8; }
-  | GT EQL { $$ = 9; }
+  : ADD { $$ = Add; }
+  | SUB { $$ = Sub; }
+  | MUL { $$ = Mul; }
+  | DIV { $$ = Div; }
+  | LT { $$ = Lt; }
+  | GT { $$ = Gt; }
+  | LT EQL { $$ = Leq; }
+  | GT EQL { $$ = Geq; }
 
 expr
   : expr binary_op expr
   {
-    printf("LIT %d\n", $1);
-    printf("LIT %d\n", $3);
-    printf("OPR %d\n", $2);
-    $$ = 0;
+    printf("op %d\n", $2);
+    $$ = ++seek;
   }
-  | L_PAREN expr R_PAREN
-  {
-    printf("(%d)", $2);
-    $$ = 0;
-  }
+  | L_PAREN expr R_PAREN { $$ = $2; }
   | READ {
     printf("read\n");
-    $$ = 0;
-  }
-  | WRITE {
-    printf("write\n");
-    $$ = 0;
+    $$ = ++seek;
   }
   | WRITELN {
     printf("writeln\n");
-    $$ = 0;
+    $$ = ++seek;
   }
-  | IDENT {
-    printf("%d\n", $1);
-    $$ = $1;
+  | IDENT { printf("%s\n", $1); $$ = ++seek; }
+  | NUMBER {
+    printf("lit %d\n", $1);
   }
-  | NUMBER
   ;
 %%
 
@@ -131,4 +121,5 @@ int main(int argc, char * argv[]) {
   }
   yyparse();
   fclose(yyin);
+  return 0;
 }
