@@ -1,11 +1,13 @@
-func fib(x) {
-  if x == 0 || x == 1 then return 1
-  return fib(x - 1) + fib(x - 2)
-}
-
+function fib(x)
 begin
-  n := 0
-  read n
-  write fib(n)
-  writeln
+  if x = 0 then return 1;
+  if x = 1 then return 1;
+  return fib(x - 1) + fib(x - 2);
 end
+
+var n;
+begin
+  n := read;
+  write fib(n);
+  writeln;
+end.

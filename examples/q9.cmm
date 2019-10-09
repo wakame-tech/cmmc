@@ -1,11 +1,12 @@
-func f(n) {
-  if n == 0 then return 1
-  return 2 * f(n - 1) + n
-}
-
+function f(n)
 begin
-  n := 0
-  read n
-  write f(n)
-  writeln
+  if n = 0 then return 1;
+  return 2 * f(n - 1) + n;
 end
+
+var n;
+begin
+  n := read;
+  write f(n);
+  writeln;
+end.

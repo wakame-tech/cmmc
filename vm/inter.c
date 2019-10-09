@@ -61,12 +61,12 @@ void interpreter() {
     }
 
     i = code[p++]; /* get an instruction */
-	  f = i.f;  l = i.l;  a = i.a;
-	  switch(f) {
-	    case O_LIT : s[++t] = a;  break;
-	    case O_OPR : 
-	      switch((oprcode)a) {
-	        case P_RET: t = b - 1;  p = s[t+3];	 b = s[t+2];  break;
+    f = i.f;  l = i.l;  a = i.a;
+    switch(f) {
+      case O_LIT : s[++t] = a;  break;
+      case O_OPR : 
+        switch((oprcode)a) {
+          case P_RET: t = b - 1;  p = s[t+3];	 b = s[t+2];  break;
           case P_NEG:	   ;  s[t] = -s[t]		   ;  break;
           case P_ADD: --t;  s[t] = s[t] + s[t+1]	   ;  break; 
           case P_SUB: --t;  s[t] = s[t] - s[t+1]	   ;  break; 
@@ -81,40 +81,40 @@ void interpreter() {
           case P_GT:	--t;  s[t] = ( s[t] >  s[t+1] )	   ;  break;
           case P_LE:	--t;  s[t] = ( s[t] <= s[t+1] )	   ;  break;
         }
-	      break;
-	    case O_LOD: s[++t] = s[base(l)+a];  break;
-	    case O_STO: s[base(l)+a] = s[t--];  break;
-	    case O_CAL:
+        break;
+      case O_LOD: s[++t] = s[base(l)+a];  break;
+      case O_STO: s[base(l)+a] = s[t--];  break;
+      case O_CAL:
         s[t+1] = base(l) /* static link */ ;
         s[t+2] = b /* dynamic link */;
         s[t+3] = p /* ret. addr. */;
-		    b = t + 1; p = a;	break;
-	    case O_INT: t += a; break;
-	    case O_RET:
+        b = t + 1; p = a;	break;
+      case O_INT: t += a; break;
+      case O_RET:
         tmp = s[t];
-	      t = b - 1;
-		    p = s[t+3];
-		    b = s[t+2];
-		    t -= a;
-		    s[++t] = tmp;
-		    break;
-	    case O_JMP: p = a;  break;
-	    case O_JPC: if( s[t--] == 0 ) p = a;  break;
-	    case O_CSP:
-	      switch((cspcode)a) {
+        t = b - 1;
+        p = s[t+3];
+        b = s[t+2];
+        t -= a;
+        s[++t] = tmp;
+        break;
+      case O_JMP: p = a;  break;
+    case O_JPC: if( s[t--] == 0 ) p = a;  break;
+      case O_CSP:
+        switch((cspcode)a) {
           case RDI: /* read(var) */
             if(scanf("%d",&s[++t]) != 1) printf( "error read\n" );
             break;
           case WRI: /* write(exp) */
-            printf("%d\n", s[t--]);
+            printf("%d", s[t--]);
             break;
           case WRL: /* writeln */
             putchar('\n');
             break;
           }
-	      break;
+        break;
       default: break;
-	  }
+    }
   } while( p != 0 );
 
   if (is_debug) printf( "end PL/0\n" );
@@ -223,16 +223,17 @@ void linearize(instruction c[]) {
     l = code2[tmpcx].l;
     a = code2[tmpcx].a;
 
-	  switch(f) {
+    switch(f) {
       case O_LAB:
         /* label 'a' was unused */
         if( label[a] == 0 ) {
-          if (is_debug) printf("label %d is %d at %d\n", a, cx, tmpcx);
+          if (is_debug) printf("label %d is %d\n", a, cx);
           /* let it be defined. let label[a] point to its address */
           label[a] = cx;
         } else if (label[a] < 0) {
           /* label 'a' was used before def. */
           /* backpatching */
+          if (is_debug) printf("label %d is backpatching\n", a);
           c1 = -label[a];
           /* trace forward reference chain */
           while(c1 != 0) {
