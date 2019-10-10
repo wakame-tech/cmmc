@@ -1,4 +1,17 @@
 # pl0c
+## env
+```
+$ lex -V
+flex 2.5.35 Apple(flex-31)
+
+$ yacc -V
+bison (GNU Bison) 2.3
+Written by Robert Corbett and Richard Stallman.
+
+$ gcc -v
+Apple LLVM version 10.0.1 (clang-1001.0.46.4)
+```
+
 ## 演算子
 `(OPR, 0, a)`
 - 0: 手続きから戻る
