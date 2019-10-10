@@ -1,33 +1,48 @@
-  0: jmp,25
-  1: jmp,2
-  2: ict,2
-  3: lod,1,-1
-  4: lit,0
-  5: opr,eq
-  6: jpc,9
-  7: lit,1
-  8: ret,1,1
-  9: lod,1,-1
- 10: lit,1
- 11: opr,eq
- 12: jpc,15
- 13: lit,1
- 14: ret,1,1
- 15: lod,1,-1
- 16: lit,1
- 17: opr,sub
- 18: cal,0,2
- 19: lod,1,-1
- 20: lit,2
- 21: opr,sub
- 22: cal,0,2
- 23: opr,add
- 24: ret,1,1
- 25: ict,3
- 26: opr,rd
- 27: sto,0,2
- 28: lod,0,2
- 29: cal,0,2
- 30: opr,wrt
- 31: opr,wrl
- 32: ret,0,0
+( JMP, 0, 4 )
+
+( LAB, 0, 1 )
+( INT, 0, 3 )
+
+( LOD, 0, -1 )
+( LIT, 0, 0 )
+( OPR, 0, 8 )
+( JPC, 0, 2 )
+
+( LIT, 0, 1 )
+( RET, 0, 1 )
+
+( LAB, 0, 2 )
+
+( LOD, 0, -1 )
+( LIT, 0, 1 )
+( OPR, 0, 8 )
+( JPC, 0, 3 )
+
+( LIT, 0, 1 )
+( RET, 0, 1 )
+
+( LAB, 0, 3 )
+( LOD, 0, -1 )
+( LIT, 0, 1 )
+( OPR, 0, 3 )
+( CAL, 0, 1 )
+
+( LOD, 0, -1 )
+( LIT, 0, 2 )
+( OPR, 0, 3 )
+( CAL, 0, 1 )
+
+( OPR, 0, 2 )
+
+( RET, 0, 1 )
+( OPR, 0, 0 )
+
+( LAB, 0, 4 )
+( INT, 0, 4 ) // 3 + 1
+( CSP, 0, 0 )
+( STO, 0, 3 )
+( LOD, 0, 3 )
+( CAL, 1, 1 )
+( CSP, 0, 1 )
+( CSP, 0, 2 )
+( OPR, 0, 0 )

@@ -1,29 +1,42 @@
-  0: jmp,21
-  1: jmp,2
-  2: ict,2
-  3: lod,1,-1
-  4: lit,0
-  5: opr,eq
-  6: jpc,9
-  7: lit,1
-  8: ret,1,1
-  9: lod,1,-1
- 10: lit,1
- 11: opr,sub
- 12: cal,0,2
- 13: lit,2
- 14: lod,1,-1
- 15: lit,1
- 16: opr,sub
- 17: cal,0,2
- 18: opr,mul
- 19: opr,add
- 20: ret,1,1
- 21: ict,3
- 22: opr,rd
- 23: sto,0,2
- 24: lod,0,2
- 25: cal,0,2
- 26: opr,wrt
- 27: opr,wrl
- 28: ret,0,0
+( JMP, 0, 3 )
+
+( LAB, 0, 1 )
+( INT, 0, 3 ) // 3 + 0
+
+( LOD, 0, -1 ) // x
+( LIT, 0, 0 ) // 0
+( OPR, 0, 8 ) // =
+( JPC, 0, 2 )
+
+( LIT, 0, 1 ) // 1
+( RET, 0, 1 ) // return
+
+( LAB, 0, 2 )
+
+( LOD, 0, -1 )
+( LIT, 0, 1 )
+( OPR, 0, 3 )
+( CAL, 0, 1 ) // f(x - 1)
+
+( LIT, 0, 2 )
+
+( LOD, 0, -1 )
+( LIT, 0, 1 )
+( OPR, 0, 3 )
+( CAL, 0, 1 ) // f(x - 1)
+
+( OPR, 0, 4 ) // *
+( OPR, 0, 2 ) // +
+
+( RET, 0, 1 )
+( OPR, 0, 0 )
+
+( LAB, 0, 3 )
+( INT, 0, 4 ) // 3 + 1
+( CSP, 0, 0 ) // read
+( STO, 0, 3 ) // n :=
+( LOD, 0, 3 ) // n
+( CAL, 1, 1 ) // f(n)
+( CSP, 0, 1 )
+( CSP, 0, 2 )
+( OPR, 0, 0 )
