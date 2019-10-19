@@ -24,6 +24,8 @@
 ";" return SEMICOLON;
 "," return COMMA;
 
+"++" return INC;
+"--" return DEC;
 "+" return PLUS;
 "-"	return MINUS;
 "*" return MULT;

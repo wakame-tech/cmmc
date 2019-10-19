@@ -28,11 +28,12 @@ typedef struct Codeval {
 %token VAR MAIN IF THEN ELSE BGN END ENDIF WHILE DO FOR ENDFOR RETURN
 %token READ WRITE WRITELN
 %token SEMICOLON COMMA
-%token PLUS MINUS MULT DIV ASN MOD POW EQ NE LT GT LE GE AND OR NOT
+%token INC DEC PLUS MINUS MULT DIV ASN MOD POW EQ NE LT GT LE GE AND OR NOT
 %token L_PAREN R_PAREN L_BRACKET R_BRACKET L_SQBRACKET R_SQBRACKET
 %token NUMBER
 %token IDENT
 
+%left INC DEC
 %left NOT
 %left MULT DIV MOD POW
 %left PLUS MINUS
@@ -409,6 +410,59 @@ expr
   }
   | NOT expr {
     $$.code = mergecode($2.code, makecode(O_OPR, 0, 16));
+  }
+  | INC IDENT {
+    // ++i -> i := i + 1; i;
+    list * v = search_all($1.name);
+    if (v == NULL){
+      sem_error2("inc");
+    }
+
+    cptr * t = mergecode(makecode(O_LOD, level - v->l, v->a), makecode(O_LIT, 0, 1));
+    t = mergecode(t, makecode(O_OPR, 0, 2));
+    t = mergecode(t, makecode(O_STO, level - v->l, v->a));
+    t = mergecode(t, makecode(O_LOD, level - v->l, v->a));
+    $$.code = t;
+  }
+  | DEC IDENT {
+    list * v = search_all($1.name);
+    if (v == NULL){
+      sem_error2("dec");
+    }
+
+    cptr * t = mergecode(makecode(O_LOD, level - v->l, v->a), makecode(O_LIT, 0, 1));
+    t = mergecode(t, makecode(O_OPR, 0, 3));
+    t = mergecode(t, makecode(O_STO, level - v->l, v->a));
+    t = mergecode(t, makecode(O_LOD, level - v->l, v->a));
+    $$.code = t;
+  }
+  | IDENT INC {
+    // i++ -> i := i + 1; i - 1;
+    list * v = search_all($1.name);
+    if (v == NULL){
+      sem_error2("inc");
+    }
+
+    cptr * t = mergecode(makecode(O_LOD, level - v->l, v->a), makecode(O_LIT, 0, 1));
+    t = mergecode(t, makecode(O_OPR, 0, 2));
+    t = mergecode(t, makecode(O_STO, level - v->l, v->a));
+    t = mergecode(t, makecode(O_LOD, level - v->l, v->a));
+    t = mergecode(mergecode(t, makecode(O_LIT, 0, 1)), makecode(O_OPR, 0, 3));
+    $$.code = t;
+  }
+  | IDENT DEC {
+    // i-- -> i := i - 1; i + 1;
+    list * v = search_all($1.name);
+    if (v == NULL){
+      sem_error2("dec");
+    }
+
+    cptr * t = mergecode(makecode(O_LOD, level - v->l, v->a), makecode(O_LIT, 0, 1));
+    t = mergecode(t, makecode(O_OPR, 0, 3));
+    t = mergecode(t, makecode(O_STO, level - v->l, v->a));
+    t = mergecode(t, makecode(O_LOD, level - v->l, v->a));
+    t = mergecode(mergecode(t, makecode(O_LIT, 0, 1)), makecode(O_OPR, 0, 2));
+    $$.code = t;
   }
   | L_PAREN expr R_PAREN {
     $$.code = $2.code;
