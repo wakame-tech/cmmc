@@ -33,13 +33,13 @@ typedef struct Codeval {
 %token NUMBER
 %token IDENT
 
-%left INC DEC
-%left NOT
-%left MULT DIV MOD POW
-%left PLUS MINUS
-%left EQ NE LT GT LE GE
-%left AND OR
 %left ASN
+%left AND OR
+%left EQ NE LT GT LE GE
+%left PLUS MINUS
+%left MULT DIV MOD POW
+%left NOT
+%left INC DEC
 
 %%
 program
@@ -466,6 +466,9 @@ expr
   }
   | L_PAREN expr R_PAREN {
     $$.code = $2.code;
+  }
+  | expr COMMA expr {
+    $$.code = mergecode($1.code, $3.code);
   }
   | NUMBER {
     $$.code = makecode(O_LIT, 0, yylval.val);
