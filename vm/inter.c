@@ -26,6 +26,16 @@ instruction getcode(char * buf);
 
 static void wrcode(int c, instruction c2[]);
 
+/* table for mnemonic code */
+mnemonic mntbl[] = {
+  { "LIT", O_LIT }, { "OPR", O_OPR },
+  { "LOD", O_LOD }, { "STO", O_STO },
+  { "CAL", O_CAL }, { "INT", O_INT },
+  { "JMP", O_JMP }, { "JPC", O_JPC },
+  { "CSP", O_CSP }, { "LAB", O_LAB },
+  { "   ", O_BAD }, { "RET", O_RET }
+};
+
 /* trace static link l times, where l is the difference */
 /* of current and referenced static nesting levels */
 int base(l) int l; {
@@ -50,16 +60,6 @@ void interpreter() {
   s[1] = s[2] = s[3] = 0; /* static link, dynamic link, ret. addr. of main */
 
   do {
-    /* stack dump */
-    if (is_debug) {
-      printf("@ L%d (%d, %d, %d) stack [ ", p, f, l, a);
-      for (int i = 1; i < t; i++) {
-        if (i == base(l)) printf("| ");
-        printf("%d ", s[i]);
-      }
-      printf("]\n");
-    }
-
     i = code[p++]; /* get an instruction */
     f = i.f;  l = i.l;  a = i.a;
     switch(f) {
@@ -115,20 +115,32 @@ void interpreter() {
         break;
       default: break;
     }
+
+    /* stack dump */
+    if (is_debug) {
+      char * ope = "   ";
+      for (int i = 0; i < 12; i++) {
+        if (mntbl[i].cd == f) {
+          ope = mntbl[i].sym;
+          break;
+        }
+      }
+      printf("@ L%d (%s, %d, %d) stack [ ", p, ope, l, a);
+      b = base(l);
+      for (int i = 1; i <= t; i++) {
+        if (b <= i && i < b + 3) {
+          printf("_ ");
+        } else {
+          if (i == b) printf("| ( ");
+          printf("%d ", s[i]);
+        }
+      }
+      printf("]\n");
+    }
   } while( p != 0 );
 
   if (is_debug) printf( "end PL/0\n" );
 }
-
-/* table for mnemonic code */
-mnemonic mntbl[] = {
-  { "LIT", O_LIT }, { "OPR", O_OPR },
-  { "LOD", O_LOD }, { "STO", O_STO },
-  { "CAL", O_CAL }, { "INT", O_INT },
-  { "JMP", O_JMP }, { "JPC", O_JPC },
-  { "CSP", O_CSP }, { "LAB", O_LAB },
-  { "   ", O_BAD }, { "RET", O_RET }
-};
 
 opecode mnemonic2i(char * f){
   for(int i = 0; i < 12; i++){
