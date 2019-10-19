@@ -73,7 +73,7 @@ void interpreter() {
           case P_MUL: --t;  s[t] = s[t] * s[t+1]	   ;  break; 
           case P_DIV: --t;  s[t] = s[t] / s[t+1]	   ;  break; 
           case P_ODD:	   ;  s[t] = s[t] % 2		   ;  break;
-          case P_MOD: /* --t;  s[t] = s[t] % s[t+1]; */  break;
+          case P_MOD: --t;  s[t] = s[t] % s[t+1];  break;
           case P_EQ:	--t;  s[t] = ( s[t] == s[t+1] )	   ;  break;
           case P_NE:	--t;  s[t] = ( s[t] != s[t+1] )	   ;  break;
           case P_LT:	--t;  s[t] = ( s[t] <  s[t+1] )	   ;  break;
@@ -82,7 +82,7 @@ void interpreter() {
           case P_LE:	--t;  s[t] = ( s[t] <= s[t+1] )	   ;  break;
           case P_AND: --t;  s[t] = ( s[t] && s[t+1] )    ;  break;
           case P_OR:  --t;  s[t] = ( s[t] || s[t+1] )    ;  break;
-          case P_NOT:    ;  s[t] = !s[t]       ;  break;
+          case P_NOT:    ;  s[t] = s[t] ? 0 : 1       ;  break;
         }
         break;
       case O_LOD: s[++t] = s[base(l)+a];  break;

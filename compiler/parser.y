@@ -243,23 +243,6 @@ stmt
       makecode(O_STO, level - tmp2->l, tmp2->a));
     $$.val = 0;
   }
-  | IDENT ASN expr SEMICOLON {
-    list *tmp;
-
-    tmp = search_all($1.name);
-
-    if (tmp == NULL){
-      sem_error2("assignment");
-    }
-
-    if (tmp->kind != VARIABLE){
-      sem_error2("assignment2");
-    }
-
-    $$.code = mergecode($3.code,
-      makecode(O_STO, level - tmp->l, tmp->a));
-    $$.val = 0;
-  }
   | if_stmt
   | while_stmt
   | for_stmt
@@ -348,14 +331,32 @@ for_stmt
     $$.code = tmp;
     $$.val = 0;
   }
+  ;
 
 init
-  : stmt {
+  : expr {
     $$.code = $1.code;
   }
 
 expr
-  : expr PLUS expr {
+  : IDENT ASN expr {
+    list *tmp;
+
+    tmp = search_all($1.name);
+
+    if (tmp == NULL){
+      sem_error2("assignment");
+    }
+
+    if (tmp->kind != VARIABLE){
+      sem_error2("assignment2");
+    }
+
+    $$.code = mergecode($3.code,
+      makecode(O_STO, level - tmp->l, tmp->a));
+    $$.val = 0;
+  }
+  | expr PLUS expr {
     $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 2));
   }
   | expr MINUS expr {
@@ -370,11 +371,17 @@ expr
   | expr MOD expr {
     // a % b == a - b * (a // b)
     // (a (b (a b /) *) -)
+    // [NOTE]
+    // cannot use mergecode args twice
+    // because in mergecode() free() args
+    /*
     cptr *tmp;
     tmp = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 5));
     tmp = mergecode(mergecode($3.code, tmp), makecode(O_OPR, 0, 4));
     tmp = mergecode(mergecode($1.code, tmp), makecode(O_OPR, 0, 3));
     $$.code = tmp;
+    */
+    $$.code = mergecode(mergecode($1.code, $3.code), makecode(O_OPR, 0, 7));
   }
   | expr GT expr {
     $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 12));
@@ -401,7 +408,7 @@ expr
     $$.code = mergecode(mergecode($1.code, $3.code), makecode(O_OPR, 0, 15));
   }
   | NOT expr {
-    $$.code = mergecode($2.code, makecode(O_OPR, 0, 15));
+    $$.code = mergecode($2.code, makecode(O_OPR, 0, 16));
   }
   | L_PAREN expr R_PAREN {
     $$.code = $2.code;
@@ -494,7 +501,7 @@ int main(int argc, char * argv[]) {
 
   extern FILE * yyin;
 
-  printf("[Compile] %s\n", argv[1]);
+  // printf("[Compile] %s\n", argv[1]);
   if((yyin = fopen(argv[1], "r")) == NULL) {
     fprintf(stderr, "%s not found\n", argv[1]);
     exit(1);
@@ -503,7 +510,7 @@ int main(int argc, char * argv[]) {
   initialize();
   yyparse();
 
-  printf("[Success] %s\n", argv[1]);
+  // printf("[Success] %s\n", argv[1]);
 
   fclose(yyin);
   fclose(ofile);

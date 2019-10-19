@@ -1,7 +1,7 @@
 CC	= cc
 
 cmmc	: y.tab.c code.o env.o
-	$(CC) y.tab.c code.o env.o -ly -ll -o cmmc && make clean
+	$(CC) y.tab.c code.o env.o -ly -ll -o cmmc
 
 y.tab.c	: parser.y lex.yy.c
 	yacc -dv -y parser.y

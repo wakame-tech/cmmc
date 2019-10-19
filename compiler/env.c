@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "env.h"
 
@@ -30,7 +31,7 @@ list *search_all(char* name){
   for(tmp=t;
       tmp != h;
       tmp = tmp->prev){
-    if (strcmp(name, tmp->name)==0){
+    if (strcmp(name, tmp->name) == 0){
       return tmp;
     }
   }
@@ -128,7 +129,7 @@ void vd_backpatch(int n_of_vars, int offset){
 void sem_error1(char* kind){
   fprintf(stderr,
 	  "this identifier has"
-	  " been already declared(%d)!\n", kind);
+	  " been already declared(%s)!\n", kind);
   exit(EXIT_FAILURE);
 }
 
