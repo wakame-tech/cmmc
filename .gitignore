@@ -1,4 +1,4 @@
-cmm/
+ref
 
 # generated
 *.output
@@ -8,7 +8,7 @@ cmm/
 
 # bin
 vm/pl0vm
-compiler/pl0c
+compiler/cmmc
 test/pl0dc
 test/pl0dm
 

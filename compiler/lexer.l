@@ -37,6 +37,9 @@
 ">" return GT;
 "<=" return LE;
 ">=" return GE;
+"&&" return AND;
+"||" return OR;
+"!" return NOT;
 
 "(" return L_PAREN;
 ")" return R_PAREN;
@@ -54,7 +57,7 @@
 [a-z][a-z0-9]* {
   char * n = calloc(strlen(yytext) + 1, sizeof(char));
   strcpy(n, yytext);
-  printf("var %s\n", n);
+  // printf("var %s\n", n);
   yylval.name = n;
   return IDENT;
 }

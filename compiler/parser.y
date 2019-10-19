@@ -28,15 +28,17 @@ typedef struct Codeval {
 %token VAR MAIN IF THEN ELSE BGN END ENDIF WHILE DO FOR ENDFOR RETURN
 %token READ WRITE WRITELN
 %token SEMICOLON COMMA
-%token PLUS MINUS MULT DIV ASN MOD POW EQ NE LT GT LE GE
+%token PLUS MINUS MULT DIV ASN MOD POW EQ NE LT GT LE GE AND OR NOT
 %token L_PAREN R_PAREN L_BRACKET R_BRACKET L_SQBRACKET R_SQBRACKET
 %token NUMBER
 %token IDENT
 
-%left '*' '/' '%' '^'
-%left '+' '-' 
-%left '<' '>' '==' '!='
-%left ':='
+%left NOT
+%left MULT DIV MOD POW
+%left PLUS MINUS
+%left EQ NE LT GT LE GE
+%left AND OR
+%left ASN
 
 %%
 program
@@ -260,6 +262,7 @@ stmt
   }
   | if_stmt
   | while_stmt
+  | for_stmt
   | {
     addlist("block", BLOCK, 0, 0, 0);
   }
@@ -271,10 +274,13 @@ stmt
     $$.code = mergecode($2.code, makecode(O_RET, 0, tmp2->params));
     $$.val = 0;
   }
+  | expr SEMICOLON {
+    $$.code = $1.code;
+  }
   ;
 
 if_stmt
-  : IF cond THEN stmt ENDIF SEMICOLON {
+  : IF expr THEN stmt ENDIF SEMICOLON {
     cptr *tmp;
     int label0, label1;
 
@@ -286,7 +292,7 @@ if_stmt
     $$.code = mergecode(tmp, makecode(O_LAB, 0, label0));
     $$.val = 0;
   }
-  | IF cond THEN stmt ELSE stmt ENDIF SEMICOLON {
+  | IF expr THEN stmt ELSE stmt ENDIF SEMICOLON {
     cptr *tmp;
     int label0, label1;
 
@@ -305,7 +311,7 @@ if_stmt
   ;
 
 while_stmt
-  : WHILE cond DO stmt {
+  : WHILE expr DO stmt {
     int label0, label1;
     cptr *tmp;
 
@@ -325,8 +331,52 @@ while_stmt
   }
   ;
 
-cond
-  : expr GT expr {
+/* ======================
+        FOR
+======================= */
+for_stmt
+  : FOR init SEMICOLON expr SEMICOLON expr DO stmts ENDFOR {
+    int label0 = makelabel(), label1 = makelabel();
+    cptr * tmp;
+    tmp = makecode(O_LAB, 0, label0);
+    tmp = mergecode(tmp, $4.code);
+    tmp = mergecode(tmp, makecode(O_JPC, 0, label1));
+    tmp = mergecode(tmp, $8.code);
+    tmp = mergecode(tmp, $6.code);
+    tmp = mergecode(tmp, makecode(O_JMP, 0, label0));
+    tmp = mergecode(tmp, makecode(O_LAB, 0, label1));
+    $$.code = tmp;
+    $$.val = 0;
+  }
+
+init
+  : stmt {
+    $$.code = $1.code;
+  }
+
+expr
+  : expr PLUS expr {
+    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 2));
+  }
+  | expr MINUS expr {
+    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 3));
+  }
+  | expr MULT expr {
+    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 4));
+  }
+  | expr DIV expr {
+    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 5));
+  }
+  | expr MOD expr {
+    // a % b == a - b * (a // b)
+    // (a (b (a b /) *) -)
+    cptr *tmp;
+    tmp = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 5));
+    tmp = mergecode(mergecode($3.code, tmp), makecode(O_OPR, 0, 4));
+    tmp = mergecode(mergecode($1.code, tmp), makecode(O_OPR, 0, 3));
+    $$.code = tmp;
+  }
+  | expr GT expr {
     $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 12));
   }
   | expr GE expr {
@@ -342,22 +392,16 @@ cond
     $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 9));
   }
   | expr EQ expr {
-    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 8));
+    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 8));  
   }
-  ;
-
-expr
-  : expr PLUS expr {
-    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 2));
+  | expr AND expr {
+    $$.code = mergecode(mergecode($1.code, $3.code), makecode(O_OPR, 0, 14));
   }
-  | expr MINUS expr {
-    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 3));
+  | expr OR expr {
+    $$.code = mergecode(mergecode($1.code, $3.code), makecode(O_OPR, 0, 15));
   }
-  | expr MULT expr {
-    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 4));
-  }
-  | expr DIV expr {
-    $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 5));
+  | NOT expr {
+    $$.code = mergecode($2.code, makecode(O_OPR, 0, 15));
   }
   | L_PAREN expr R_PAREN {
     $$.code = $2.code;
@@ -442,21 +486,24 @@ f_parameter
 // }
 
 int main(int argc, char * argv[]) {
-  extern FILE * yyin;
-
-  printf("[Compile] %s\n", argv[1]);
-  if((yyin = fopen(argv[1], "r")) == NULL) {
-    fprintf(stderr, "Error!\n");
-    exit(1);
-  }
-  initialize();
-  yyparse();
-
-  ofile = fopen("code.output", "w");
+  ofile = fopen("a.out", "w");
   if (ofile == NULL){
     perror("ofile");
     exit(EXIT_FAILURE);
   }
+
+  extern FILE * yyin;
+
+  printf("[Compile] %s\n", argv[1]);
+  if((yyin = fopen(argv[1], "r")) == NULL) {
+    fprintf(stderr, "%s not found\n", argv[1]);
+    exit(1);
+  }
+
+  initialize();
+  yyparse();
+
+  printf("[Success] %s\n", argv[1]);
 
   fclose(yyin);
   fclose(ofile);
