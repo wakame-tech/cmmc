@@ -20,7 +20,9 @@ typedef enum {
 /* sub-operations of arithmetic operation etc. */
 typedef enum {
   P_RET, P_NEG, P_ADD, P_SUB, P_MUL, P_DIV, P_ODD, P_MOD,
-  P_EQ, P_NE, P_LT, P_GE, P_GT, P_LE
+  P_EQ, P_NE, P_LT, P_GE, P_GT, P_LE,
+  // extended
+  P_AND, P_OR, P_NOT
 } oprcode;
 
 /* sub-operations of I/O operation */

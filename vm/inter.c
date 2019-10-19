@@ -80,6 +80,9 @@ void interpreter() {
           case P_GE:	--t;  s[t] = ( s[t] >= s[t+1] )	   ;  break;
           case P_GT:	--t;  s[t] = ( s[t] >  s[t+1] )	   ;  break;
           case P_LE:	--t;  s[t] = ( s[t] <= s[t+1] )	   ;  break;
+          case P_AND: --t;  s[t] = ( s[t] && s[t+1] )    ;  break;
+          case P_OR:  --t;  s[t] = ( s[t] || s[t+1] )    ;  break;
+          case P_NOT:    ;  s[t] = !s[t]       ;  break;
         }
         break;
       case O_LOD: s[++t] = s[base(l)+a];  break;
