@@ -33,7 +33,8 @@ mnemonic mntbl[] = {
   { "CAL", O_CAL }, { "INT", O_INT },
   { "JMP", O_JMP }, { "JPC", O_JPC },
   { "CSP", O_CSP }, { "LAB", O_LAB },
-  { "   ", O_BAD }, { "RET", O_RET }
+  { "   ", O_BAD }, { "RET", O_RET },
+  { "DST", O_DST }, { "DLD", O_DLD }
 };
 
 /* trace static link l times, where l is the difference */
@@ -51,6 +52,7 @@ int base(l) int l; {
 /* interpreter */
 void interpreter() {
   int tmp;
+  int r; // for dynamic load/store
   instruction i;
   opecode f; /* operation code */
   /* l = level difference or 0 a = displacement or sub-operation or number */
@@ -85,8 +87,32 @@ void interpreter() {
           case P_NOT:    ;  s[t] = s[t] ? 0 : 1       ;  break;
         }
         break;
-      case O_LOD: s[++t] = s[base(l)+a];  break;
-      case O_STO: s[base(l)+a] = s[t--];  break;
+      case O_LOD:
+        s[++t] = s[base(l) + a];
+        break;
+      case O_DLD:
+        // pop stack top
+        r = s[t--];
+        if (t <= r) {
+          printf("warning index out of range %d <= %d\n", t, r);
+        }
+        // dynamic load
+        s[++t] = s[base(l) + r];
+        break;
+      case O_STO:
+        s[base(l) + a] = s[t--];
+        break;
+      case O_DST:
+        // pop stack top
+        r = s[t--];
+        if (t <= r) {
+          printf("warning index out of range %d <= %d\n", t, r);
+        }
+
+        printf("r = %d\n", r);
+        // dynamic store
+        s[base(l) + r] = s[t--];
+        break;
       case O_CAL:
         s[t+1] = base(l) /* static link */ ;
         s[t+2] = b /* dynamic link */;
@@ -122,7 +148,7 @@ void interpreter() {
     /* stack dump */
     if (is_debug) {
       char * ope = "   ";
-      for (int i = 0; i < 12; i++) {
+      for (int i = 0; i < 14; i++) {
         if (mntbl[i].cd == f) {
           ope = mntbl[i].sym;
           break;
@@ -146,7 +172,7 @@ void interpreter() {
 }
 
 opecode mnemonic2i(char * f){
-  for(int i = 0; i < 12; i++){
+  for(int i = 0; i < 14; i++){
     if (strcmp(mntbl[i].sym, f) == 0) {
       return mntbl[i].cd;
     }

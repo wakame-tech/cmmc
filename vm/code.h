@@ -14,7 +14,8 @@ typedef enum {
   O_LIT, O_OPR, O_LOD,
   O_STO, O_CAL, O_INT,
   O_JMP, O_JPC, O_CSP,
-  O_LAB, O_BAD, O_RET
+  O_LAB, O_BAD, O_RET,
+  O_DST, O_DLD
 } opecode;
 
 /* sub-operations of arithmetic operation etc. */
