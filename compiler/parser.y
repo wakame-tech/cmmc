@@ -32,6 +32,7 @@ typedef struct Codeval {
 %token L_PAREN R_PAREN L_BRACKET R_BRACKET L_SQBRACKET R_SQBRACKET
 %token NUMBER
 %token IDENT
+%token GOTO LABEL
 
 %left ASN
 %left AND OR
@@ -247,6 +248,13 @@ stmt
   | if_stmt
   | while_stmt
   | for_stmt
+  | GOTO IDENT {
+    // TODO search label index
+    $$.code = makecode(O_JMP, 0, 1)
+  }
+  | LABEL IDENT {
+    $$.code = makecode(O_LAB, 0, makelabel());
+  }
   | {
     addlist("block", BLOCK, 0, 0, 0);
   }

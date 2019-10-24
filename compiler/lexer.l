@@ -20,6 +20,8 @@
 "write" return WRITE;
 "writeln" return WRITELN;
 "return" return RETURN;
+"goto" return GOTO;
+"label" return LABEL;
 
 ";" return SEMICOLON;
 "," return COMMA;
