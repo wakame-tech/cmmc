@@ -274,6 +274,30 @@ stmt
       makecode(O_STO, level - tmp2->l, tmp2->a));
     $$.val = 0;
   }
+  | READ IDENT L_SQBRACKET expr R_SQBRACKET SEMICOLON {
+    list * tmpl;
+    cptr * tmpc;
+
+    tmpl = search_all($2.name);
+
+    if (tmpl == NULL){
+      sem_error2("assignment");
+    }
+
+    if (tmpl->kind != VARIABLE){
+      sem_error2("assignment2");
+    }
+
+    cptr *address_node = mergecode(mergecode($4.code, makecode(O_LIT, 0, tmpl->a)), makecode(O_OPR, 0, 2));
+
+    dump_node(address_node);
+
+    tmpc = mergecode(makecode(O_CSP, 0, 0), address_node);
+    tmpc = mergecode(tmpc, makecode(O_DST, 0, 0));
+    $$.code = tmpc;
+    // $.code = mergecode(makecode(O_CSP, 0, 0), makecode(O_STO, level - tmpl->l, tmpl->a));
+    $$.val = 0;
+  }
   | if_stmt
   | while_stmt
   | for_stmt
@@ -385,8 +409,6 @@ expr
 
     tmp = search_all($1.name);
 
-    printf("%s at %d\n", tmp->name, tmp->a);
-
     if (tmp == NULL){
       sem_error2("assignment");
     }
@@ -404,7 +426,7 @@ expr
 
     tmp = search_all($1.name);
 
-    printf("%s at %d\n", tmp->name, tmp->a);
+    // printf("%s at %d\n", tmp->name, tmp->a);
 
     if (tmp == NULL){
       sem_error2("assignment");
@@ -414,11 +436,11 @@ expr
       sem_error2("assignment2");
     }
 
-    printf("%s base %d + offset ?\n", tmp->name, tmp->a);
+    // printf("%s base %d + offset ?\n", tmp->name, tmp->a);
 
     cptr *address_node = mergecode(mergecode($3.code, makecode(O_LIT, 0, tmp->a)), makecode(O_OPR, 0, 2));
 
-    dump_node(address_node);
+    // dump_node(address_node);
 
     $$.code = mergecode(mergecode($6.code, address_node), makecode(O_DST, 0, 0));
     $$.val = 0;
@@ -565,8 +587,14 @@ expr
     }
 
     if (tmpl->kind == VARIABLE){
-      $$.code = mergecode($3.code,
-        makecode(O_DLD, 0, 0));
+      // printf("%s base %d + offset ?\n", tmpl->name, tmpl->a);
+
+      cptr *address_node = mergecode(mergecode($3.code, makecode(O_LIT, 0, tmpl->a)), makecode(O_OPR, 0, 2));
+
+      // dump_node(address_node);
+
+      $$.code = mergecode(address_node, makecode(O_DLD, 0, 0));
+      $$.val = 0;
     }
     else {
       sem_error2("id as variable");
