@@ -59,7 +59,7 @@ void stack_dump(int f, int l, int a) {
   }
   printf("@ L%d (%s, %d, %d) t = %d stack [ ", p, ope, l, a, t);
   b = base(l);
-  for (int i = 1; i < t; i++) {
+  for (int i = 1; i <= t; i++) {
     if (b <= i && i < b + 3) {
       printf("_ ");
     } else {
@@ -117,9 +117,9 @@ void interpreter() {
         if (t <= r) {
           printf("warning index out of range %d <= %d\n", t, r);
         }
-        if (is_debug) printf("[%d + (3)]\n", r);
+        if (is_debug) printf("[%d]\n", r);
         // dynamic load
-        s[++t] = s[base(l) + r + 3];
+        s[++t] = s[base(l) + r];
 
         if (is_debug) stack_dump(f, l, a);
 
@@ -134,9 +134,9 @@ void interpreter() {
           printf("warning index out of range %d <= %d\n", t, r);
         }
 
-        if (is_debug) printf("[%d + (3)]\n", r);
+        if (is_debug) printf("[%d] = %d\n", r, s[t]);
         // dynamic store
-        s[base(l) + r + 3] = s[t--];
+        s[base(l) + r] = s[t--];
 
         if (is_debug) stack_dump(f, l, a);
         break;

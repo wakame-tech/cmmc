@@ -386,7 +386,7 @@ for_stmt
   : FOR init SEMICOLON expr SEMICOLON expr DO stmts ENDFOR {
     int label0 = makelabel(), label1 = makelabel();
     cptr * tmp;
-    tmp = makecode(O_LAB, 0, label0);
+    tmp = mergecode($2.code, makecode(O_LAB, 0, label0));
     tmp = mergecode(tmp, $4.code);
     tmp = mergecode(tmp, makecode(O_JPC, 0, label1));
     tmp = mergecode(tmp, $8.code);
@@ -401,6 +401,7 @@ for_stmt
 init
   : expr {
     $$.code = $1.code;
+    $$.val = 0;
   }
 
 /* =======
@@ -439,11 +440,11 @@ expr
       sem_error2("assignment2");
     }
 
-    // printf("%s base %d + offset ?\n", tmp->name, tmp->a);
+    printf("%s base %d + offset ?\n", tmp->name, tmp->a);
 
     cptr *address_node = mergecode(mergecode($3.code, makecode(O_LIT, 0, tmp->a)), makecode(O_OPR, 0, 2));
 
-    // dump_node(address_node);
+    dump_node(address_node);
 
     $$.code = mergecode(mergecode($6.code, address_node), makecode(O_DST, 0, 0));
     $$.val = 0;

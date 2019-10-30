@@ -1,12 +1,13 @@
 main {
-  var a[1], i;
-  for i := 0; i < 1; i++ do
+  var a[2], i, b[2];
+  for i := 0; i < 2; i++ do
     read a[i];
+    read b[i];
   endfor
-  for i := 0; i < 1; i++ do
-    write i;
-    writeln;
+  for i := 0; i < 2; i++ do
     write a[i];
+    writeln;
+    write b[i];
     writeln;
   endfor
 }
