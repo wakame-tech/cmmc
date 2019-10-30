@@ -31,6 +31,7 @@ typedef struct {
 int makelabel();
 cptr* makecode(int f, int l, int a);
 cptr* mergecode(cptr* c1, cptr* c2);
-void  printcode(FILE* f, cptr* c);
+void dump_node(cptr * c);
+void printcode(FILE* f, cptr* c);
 
 #endif

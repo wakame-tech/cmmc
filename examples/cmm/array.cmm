@@ -1,4 +1,6 @@
 main {
-  var a[2];
-  a[1];
+  var a[1], i;
+  i := 2;
+  a[1] := 5;
+  write a[1];
 }

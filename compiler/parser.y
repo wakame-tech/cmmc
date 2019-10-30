@@ -193,6 +193,18 @@ idents
     $$.code = NULL;
     $$.val = $1.val + 1;
   }
+  | idents COMMA IDENT L_SQBRACKET NUMBER R_SQBRACKET {
+    printf("%s val = %d\n", $3.name, $1.val);
+    if (search_block($3.name) == NULL){
+      addlist($3.name, VARIABLE, 0, level, 0);
+    }
+    else {
+      sem_error1("var");
+    }
+
+    $$.code = NULL;
+    $$.val = $1.val + yylval.val;
+  }
   | IDENT {
     if (search_block($1.name) == NULL){
       addlist($1.name, VARIABLE, 0, level, 0);
@@ -211,8 +223,6 @@ idents
     else {
       sem_error1("var");
     }
-
-    printf("%d elements array\n", yylval.val);
 
     $$.code = NULL;
     $$.val = yylval.val;
@@ -375,6 +385,8 @@ expr
 
     tmp = search_all($1.name);
 
+    printf("%s at %d\n", tmp->name, tmp->a);
+
     if (tmp == NULL){
       sem_error2("assignment");
     }
@@ -387,9 +399,28 @@ expr
       makecode(O_STO, level - tmp->l, tmp->a));
     $$.val = 0;
   }
-  | IDENT L_SQBRACKET expr R_SQBRACKET expr {
-    // [TODO] array assigning
-    $$.code = $3.code;
+  | IDENT L_SQBRACKET expr R_SQBRACKET ASN expr {
+    list *tmp;
+
+    tmp = search_all($1.name);
+
+    printf("%s at %d\n", tmp->name, tmp->a);
+
+    if (tmp == NULL){
+      sem_error2("assignment");
+    }
+
+    if (tmp->kind != VARIABLE){
+      sem_error2("assignment2");
+    }
+
+    printf("%s base %d + offset ?\n", tmp->name, tmp->a);
+
+    cptr *address_node = mergecode(mergecode($3.code, makecode(O_LIT, 0, tmp->a)), makecode(O_OPR, 0, 2));
+
+    dump_node(address_node);
+
+    $$.code = mergecode(mergecode($6.code, address_node), makecode(O_DST, 0, 0));
     $$.val = 0;
   }
   | expr PLUS expr {

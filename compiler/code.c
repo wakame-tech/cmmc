@@ -60,6 +60,19 @@ cptr* mergecode(cptr* c1, cptr* c2){
   return c1;
 }
 
+// debug
+void dump_node(cptr * c) {
+  for(code * t = c->h; t != NULL; t = t->next) {
+    if (t->f == O_LIT) {
+      printf("%d", t->a);
+    } else if (t->f == O_OPR) {
+      printf("<%d>", t->a);
+    }
+    printf(" ");
+  }
+  printf("\n");
+}
+
 void printcode(FILE* f, cptr* c){
   code* tmp;
 

@@ -1,7 +1,8 @@
 main {
-  var i;
-  for i := 0; i < 14 % 5 && 1 == 1; --i, i++, ++i do
-    write i;
-    writeln;
-  endfor
+  var i, j;
+  j := 1;
+  i := 2;
+  write i;
+  writeln;
+  write j;
 }
