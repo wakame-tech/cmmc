@@ -5,10 +5,15 @@
 
 typedef
 struct LIST {
+  // variable name
   char        *name;
+  // VARIABLE
   int          kind;
+  // offset
   int          a;
+  // level
   int          l;
+  // ?
   int          params;
   struct LIST *prev;
 } list;

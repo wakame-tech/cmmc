@@ -10,7 +10,8 @@ mnemonic mntbl[] = {
   { "CAL", O_CAL }, { "INT", O_INT },
   { "JMP", O_JMP }, { "JPC", O_JPC },
   { "CSP", O_CSP }, { "LAB", O_LAB },
-  { "   ", O_BAD }, { "RET", O_RET }
+  { "   ", O_BAD }, { "RET", O_RET },
+  { "DST", O_DST }, { "DLD", O_DLD }
 };
 
 

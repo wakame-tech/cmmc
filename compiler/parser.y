@@ -151,6 +151,9 @@ body
   }
   ;
 
+/* ======
+  decls
+=========*/
 _decls
   : decls {
     int i;
@@ -201,8 +204,24 @@ idents
     $$.code = NULL;
     $$.val = 1;
   }
+  | IDENT L_SQBRACKET NUMBER R_SQBRACKET {
+    if (search_block($1.name) == NULL){
+      addlist($1.name, VARIABLE, 0, level, 0);
+    }
+    else {
+      sem_error1("var");
+    }
+
+    printf("%d elements array\n", yylval.val);
+
+    $$.code = NULL;
+    $$.val = yylval.val;
+  }
   ;
 
+/* =======
+ stmts
+=========*/
 stmts
   : stmts stmt {
     $$.code = mergecode($1.code, $2.code);
@@ -250,7 +269,7 @@ stmt
   | for_stmt
   | GOTO IDENT {
     // TODO search label index
-    $$.code = makecode(O_JMP, 0, 1)
+    $$.code = makecode(O_JMP, 0, 1);
   }
   | LABEL IDENT {
     $$.code = makecode(O_LAB, 0, makelabel());
@@ -347,6 +366,9 @@ init
     $$.code = $1.code;
   }
 
+/* =======
+   expr
+========= */
 expr
   : IDENT ASN expr {
     list *tmp;
@@ -363,6 +385,11 @@ expr
 
     $$.code = mergecode($3.code,
       makecode(O_STO, level - tmp->l, tmp->a));
+    $$.val = 0;
+  }
+  | IDENT L_SQBRACKET expr R_SQBRACKET expr {
+    // [TODO] array assigning
+    $$.code = $3.code;
     $$.val = 0;
   }
   | expr PLUS expr {
@@ -492,6 +519,23 @@ expr
 
     if (tmpl->kind == VARIABLE){
       $$.code = makecode(O_LOD, level - tmpl->l, tmpl->a);
+    }
+    else {
+      sem_error2("id as variable");
+    }
+  }
+  | IDENT L_SQBRACKET expr R_SQBRACKET {
+    cptr* tmpc;
+    list* tmpl;
+
+    tmpl = search_all($1.name);
+    if (tmpl == NULL){
+      sem_error2("id");
+    }
+
+    if (tmpl->kind == VARIABLE){
+      $$.code = mergecode($3.code,
+        makecode(O_DLD, 0, 0));
     }
     else {
       sem_error2("id as variable");
