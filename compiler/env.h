@@ -15,6 +15,9 @@ struct LIST {
   int          l;
   // ?
   int          params;
+  // length if var is array, must be positive
+  int length;
+
   struct LIST *prev;
 } list;
 
@@ -22,7 +25,7 @@ struct LIST {
 list* search_block(char*);
 list* search_all(char*);
 list* searchf(int);
-void addlist(char*, int, int, int, int);
+void addlist(char*, int, int, int, int, int);
 void delete_block();
 
 list* gettail();

@@ -1,6 +1,12 @@
 main {
   var a[1], i;
-  i := 2;
-  a[1] := 5;
-  write a[1];
+  for i := 0; i < 1; i++ do
+    read a[i];
+  endfor
+  for i := 0; i < 1; i++ do
+    write i;
+    writeln;
+    write a[i];
+    writeln;
+  endfor
 }
