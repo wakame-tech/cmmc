@@ -77,17 +77,17 @@ increment_and_decrement ::
 ( LIT, 0, 2 )
 ( STO, 0, 4 ) // a[1] = 2
 
-( LIT, 0, 4 ) // 3 + 1
+( LIT, 0, 1 )
 ( DLD, 0, 0 ) // a[1]
-( CSP, 0, 1 ) // write
+( CSP, 0, 1 ) // write == 2
 ( CSP, 0, 2 )
 
 ( LIT, 0, 5 )
-( LIT, 0, 3 )
+( LIT, 0, 0 )
 ( DST, 0, 0 ) // a[0] = 5
 
 ( LOD, 0, 3 ) // a[0]
-( CSP, 0, 1 ) // write
+( CSP, 0, 1 ) // write == 5
 ( CSP, 0, 2 )
 
 ( OPR, 0, 0 )

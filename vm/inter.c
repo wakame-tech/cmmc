@@ -49,6 +49,27 @@ int base(l) int l; {
   return b1;
 }
 
+void stack_dump(int f, int l, int a) {
+  char * ope = "   ";
+  for (int i = 0; i < 14; i++) {
+    if (mntbl[i].cd == f) {
+      ope = mntbl[i].sym;
+      break;
+    }
+  }
+  printf("@ L%d (%s, %d, %d) t = %d stack [ ", p, ope, l, a, t);
+  b = base(l);
+  for (int i = 1; i < t; i++) {
+    if (b <= i && i < b + 3) {
+      printf("_ ");
+    } else {
+      if (i == b) printf("| ( ");
+      printf("%d ", s[i]);
+    }
+  }
+  printf("]\n");
+}
+
 /* interpreter */
 void interpreter() {
   int tmp;
@@ -96,8 +117,12 @@ void interpreter() {
         if (t <= r) {
           printf("warning index out of range %d <= %d\n", t, r);
         }
+        if (is_debug) printf("[%d + (3)]\n", r);
         // dynamic load
-        s[++t] = s[base(l) + r];
+        s[++t] = s[base(l) + r + 3];
+
+        if (is_debug) stack_dump(f, l, a);
+
         break;
       case O_STO:
         s[base(l) + a] = s[t--];
@@ -109,9 +134,11 @@ void interpreter() {
           printf("warning index out of range %d <= %d\n", t, r);
         }
 
-        printf("r = %d\n", r);
+        if (is_debug) printf("[%d + (3)]\n", r);
         // dynamic store
-        s[base(l) + r] = s[t--];
+        s[base(l) + r + 3] = s[t--];
+
+        if (is_debug) stack_dump(f, l, a);
         break;
       case O_CAL:
         s[t+1] = base(l) /* static link */ ;
@@ -147,24 +174,7 @@ void interpreter() {
 
     /* stack dump */
     if (is_debug) {
-      char * ope = "   ";
-      for (int i = 0; i < 14; i++) {
-        if (mntbl[i].cd == f) {
-          ope = mntbl[i].sym;
-          break;
-        }
-      }
-      printf("@ L%d (%s, %d, %d) stack [ ", p, ope, l, a);
-      b = base(l);
-      for (int i = 1; i <= t; i++) {
-        if (b <= i && i < b + 3) {
-          printf("_ ");
-        } else {
-          if (i == b) printf("| ( ");
-          printf("%d ", s[i]);
-        }
-      }
-      printf("]\n");
+      stack_dump(f, l, a);
     }
   } while( p != 0 );
 
