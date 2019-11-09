@@ -119,14 +119,15 @@ void make_params(int n_of_ids, int label){
   tmp->a = label;
 }
 
-void vd_backpatch(int n_of_vars, int offset){
+// return total memory size
+int vd_backpatch(int n_of_vars, int offset){
   list * tmp = gettail();
   
   int cnt = 0;
   for(int i = 0; i < n_of_vars; i++) {
     if (tmp == NULL) {
       printf("[Internal Compile Error] backpaching failure\n");
-      return;
+      return -1;
     }
     printf("%s { .a = %d .length = %d }\n", tmp->name, SYSTEM_AREA + offset + cnt, tmp->length);
     tmp->a = SYSTEM_AREA + offset + cnt;
@@ -134,6 +135,8 @@ void vd_backpatch(int n_of_vars, int offset){
     cnt += tmp->length;
     tmp = tmp->prev;
   }
+
+  return  cnt;
 }
 
 void sem_error1(char* kind){

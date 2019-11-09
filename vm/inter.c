@@ -117,7 +117,7 @@ void interpreter() {
         if (t <= r) {
           printf("warning index out of range %d <= %d\n", t, r);
         }
-        if (is_debug) printf("[%d]\n", r);
+        if (is_debug) printf("[%d + %d]\n", base(l), r);
         // dynamic load
         s[++t] = s[base(l) + r];
 
@@ -134,7 +134,7 @@ void interpreter() {
           printf("warning index out of range %d <= %d\n", t, r);
         }
 
-        if (is_debug) printf("[%d] = %d\n", r, s[t]);
+        if (is_debug) printf("[%d + %d] = %d\n", base(l) , r, s[t]);
         // dynamic store
         s[base(l) + r] = s[t--];
 

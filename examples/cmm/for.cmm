@@ -3,5 +3,5 @@ main {
   for i := 3; 0 < i; --i do
     write i;
     writeln;
-  endfor
+  end
 }

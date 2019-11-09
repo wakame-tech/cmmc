@@ -1,0 +1,22 @@
+main {
+  var tmp, i, j, a[5];
+
+  for i := 0; i < 5; i++ do
+    read a[i];
+  end
+
+  for i := 0; i < 5; i++ do
+    for j := 0; j < 5; j++ do
+      if a[i] < a[j] then
+        tmp := a[i];
+        a[i] := a[j];
+        a[j] := tmp;
+      end
+    end
+  end
+
+  for i := 0; i < 5; i++ do
+    write a[i];
+    writeln;
+  end
+}
