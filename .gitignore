@@ -1,4 +1,6 @@
 ref
+.vscode
+__pycache__
 
 # generated
 *.output

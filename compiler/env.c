@@ -6,7 +6,7 @@
 
 list *h, *t;
 
-void addlist(char* name, int kind, int offset, int level, int fparam){
+void addlist(char* name, int kind, int offset, int level, int fparam, int length){
   list *tmp;
 
   tmp = (list*)malloc(sizeof(list));
@@ -15,11 +15,14 @@ void addlist(char* name, int kind, int offset, int level, int fparam){
     exit(EXIT_FAILURE);
   }
 
+  printf("%s kind = %d length = %d\n", name, kind, length);
+
   tmp->name   = name;
   tmp->kind   = kind;
   tmp->a      = offset;
   tmp->l      = level;
   tmp->params = fparam;
+  tmp->length = length;
 
   tmp->prev = t;
   t = tmp;
@@ -116,14 +119,24 @@ void make_params(int n_of_ids, int label){
   tmp->a = label;
 }
 
-void vd_backpatch(int n_of_vars, int offset){
-  int i;
-  list* tmp = gettail();
+// return total memory size
+int vd_backpatch(int n_of_vars, int offset){
+  list * tmp = gettail();
   
-  for(i=0; i<n_of_vars; i++){
-    tmp->a = SYSTEM_AREA + offset + i;
+  int cnt = 0;
+  for(int i = 0; i < n_of_vars; i++) {
+    if (tmp == NULL) {
+      printf("[Internal Compile Error] backpaching failure\n");
+      return -1;
+    }
+    printf("%s { .a = %d .length = %d }\n", tmp->name, SYSTEM_AREA + offset + cnt, tmp->length);
+    tmp->a = SYSTEM_AREA + offset + cnt;
+    // for array
+    cnt += tmp->length;
     tmp = tmp->prev;
   }
+
+  return  cnt;
 }
 
 void sem_error1(char* kind){

@@ -15,6 +15,9 @@ struct LIST {
   int          l;
   // ?
   int          params;
+  // length if var is array, must be positive
+  int length;
+
   struct LIST *prev;
 } list;
 
@@ -22,7 +25,7 @@ struct LIST {
 list* search_block(char*);
 list* search_all(char*);
 list* searchf(int);
-void addlist(char*, int, int, int, int);
+void addlist(char*, int, int, int, int, int);
 void delete_block();
 
 list* gettail();
@@ -30,7 +33,7 @@ void initialize();
 
 void make_params(int n_of_ids, int label);
 
-void vd_backpatch(int n_of_vars, int offset);
+int vd_backpatch(int n_of_vars, int offset);
 
 void sem_error1(char* kind);
 void sem_error2(char* kind);

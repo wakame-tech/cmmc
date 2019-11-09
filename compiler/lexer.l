@@ -11,11 +11,10 @@
 "then" return THEN;
 "else" return ELSE;
 "begin" return BGN;
-"endif" return ENDIF;
 "while" return WHILE;
 "do" return DO;
 "for" return FOR;
-"endfor" return ENDFOR;
+"end" return END;
 "read" return READ;
 "write" return WRITE;
 "writeln" return WRITELN;
@@ -52,6 +51,8 @@
 "[" return L_SQBRACKET;
 "]" return R_SQBRACKET;
 [ \n\t]+
+
+#(.*)$
 
 0|[1-9][0-9]* {
   yylval.val = atoi(yytext);

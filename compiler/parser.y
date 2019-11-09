@@ -25,7 +25,7 @@ typedef struct Codeval {
 
 %}
 
-%token VAR MAIN IF THEN ELSE BGN END ENDIF WHILE DO FOR ENDFOR RETURN
+%token VAR MAIN IF THEN ELSE BGN END WHILE DO FOR RETURN
 %token READ WRITE WRITELN
 %token SEMICOLON COMMA
 %token INC DEC PLUS MINUS MULT DIV ASN MOD POW EQ NE LT GT LE GE AND OR NOT
@@ -51,7 +51,10 @@ program
 		label0 = makelabel();
 
 		tmp = makecode(O_JMP, 0, label0);
+    // functions
 		tmp = mergecode(tmp, $1.code);
+
+    // main
 		tmp = mergecode(tmp, makecode(O_LAB, 0, label0));
 		tmp = mergecode(tmp, makecode(O_INT, 0, $2.val + SYSTEM_AREA));
 		tmp = mergecode(tmp, $2.code);
@@ -107,18 +110,18 @@ function_header
 function_ident
   : IDENT {
     if (search_all($1.name) == NULL){
-			addlist($1.name, FUNC, 0, level, 0);
+			addlist($1.name, FUNC, 0, level, 0, 1);
 		}
 		else {
 			sem_error1("fid");
 		}
-		addlist("block", BLOCK, 0, 0, 0);
+		addlist("block", BLOCK, 0, 0, 0, 0);
   }
 
 parameters
   : parameters COMMA IDENT {
     if (search_block($3.name) == NULL){
-			addlist($3.name, VARIABLE, 0, level, 0);
+			addlist($3.name, VARIABLE, 0, level, 0, 0);
 		}
 		else {
 			sem_error1("params");
@@ -129,7 +132,7 @@ parameters
   }
   | IDENT {
     if (search_block($1.name) == NULL){
-      addlist($1.name, VARIABLE, 0, level, 0);
+      addlist($1.name, VARIABLE, 0, level, 0, 1);
     }
     else {
       sem_error1("params2");
@@ -156,11 +159,8 @@ body
 =========*/
 _decls
   : decls {
-    int i;
-
-    vd_backpatch($1.val, offset);
-
-    $$.val = $1.val;
+    int size = vd_backpatch($1.val, offset);
+    $$.val = size;
     offset = offset + $1.val;
   }
   ;
@@ -184,7 +184,7 @@ decl
 idents
   : idents COMMA IDENT {
     if (search_block($3.name) == NULL){
-      addlist($3.name, VARIABLE, 0, level, 0);
+      addlist($3.name, VARIABLE, 0, level, 0, 1);
     }
     else {
       sem_error1("var");
@@ -196,18 +196,18 @@ idents
   | idents COMMA IDENT L_SQBRACKET NUMBER R_SQBRACKET {
     printf("%s val = %d\n", $3.name, $1.val);
     if (search_block($3.name) == NULL){
-      addlist($3.name, VARIABLE, 0, level, 0);
+      addlist($3.name, VARIABLE, 0, level, 0, $5.val);
     }
     else {
       sem_error1("var");
     }
 
     $$.code = NULL;
-    $$.val = $1.val + yylval.val;
+    $$.val = $1.val + 1;
   }
   | IDENT {
     if (search_block($1.name) == NULL){
-      addlist($1.name, VARIABLE, 0, level, 0);
+      addlist($1.name, VARIABLE, 0, level, 0, 1);
     }
     else {
       sem_error1("var");
@@ -218,14 +218,14 @@ idents
   }
   | IDENT L_SQBRACKET NUMBER R_SQBRACKET {
     if (search_block($1.name) == NULL){
-      addlist($1.name, VARIABLE, 0, level, 0);
+      addlist($1.name, VARIABLE, 0, level, 0, $3.val);
     }
     else {
       sem_error1("var");
     }
 
     $$.code = NULL;
-    $$.val = yylval.val;
+    $$.val = 1;
   }
   ;
 
@@ -309,7 +309,7 @@ stmt
     $$.code = makecode(O_LAB, 0, makelabel());
   }
   | {
-    addlist("block", BLOCK, 0, 0, 0);
+    addlist("block", BLOCK, 0, 0, 0, 0);
   }
   | RETURN expr SEMICOLON {
     list* tmp2;
@@ -325,7 +325,7 @@ stmt
   ;
 
 if_stmt
-  : IF expr THEN stmt ENDIF SEMICOLON {
+  : IF expr THEN stmts END {
     cptr *tmp;
     int label0, label1;
 
@@ -337,7 +337,7 @@ if_stmt
     $$.code = mergecode(tmp, makecode(O_LAB, 0, label0));
     $$.val = 0;
   }
-  | IF expr THEN stmt ELSE stmt ENDIF SEMICOLON {
+  | IF expr THEN stmts ELSE stmts END {
     cptr *tmp;
     int label0, label1;
 
@@ -356,7 +356,7 @@ if_stmt
   ;
 
 while_stmt
-  : WHILE expr DO stmt {
+  : WHILE expr DO stmts END {
     int label0, label1;
     cptr *tmp;
 
@@ -380,10 +380,10 @@ while_stmt
         FOR
 ======================= */
 for_stmt
-  : FOR init SEMICOLON expr SEMICOLON expr DO stmts ENDFOR {
+  : FOR init SEMICOLON expr SEMICOLON expr DO stmts END {
     int label0 = makelabel(), label1 = makelabel();
     cptr * tmp;
-    tmp = makecode(O_LAB, 0, label0);
+    tmp = mergecode($2.code, makecode(O_LAB, 0, label0));
     tmp = mergecode(tmp, $4.code);
     tmp = mergecode(tmp, makecode(O_JPC, 0, label1));
     tmp = mergecode(tmp, $8.code);
@@ -398,6 +398,7 @@ for_stmt
 init
   : expr {
     $$.code = $1.code;
+    $$.val = 0;
   }
 
 /* =======
@@ -436,11 +437,11 @@ expr
       sem_error2("assignment2");
     }
 
-    // printf("%s base %d + offset ?\n", tmp->name, tmp->a);
+    printf("%s base %d + offset ?\n", tmp->name, tmp->a);
 
     cptr *address_node = mergecode(mergecode($3.code, makecode(O_LIT, 0, tmp->a)), makecode(O_OPR, 0, 2));
 
-    // dump_node(address_node);
+    dump_node(address_node);
 
     $$.code = mergecode(mergecode($6.code, address_node), makecode(O_DST, 0, 0));
     $$.val = 0;

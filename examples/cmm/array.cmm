@@ -1,6 +1,15 @@
 main {
-  var a[1], i;
-  i := 2;
-  a[1] := 5;
+  var a[2], b[2], i;
+  for i := 0; i < 2; i++ do
+    read a[i];
+    read b[i];
+  end
+
+  write a[0];
+  writeln;
   write a[1];
+  writeln;
+  write b[0];
+  writeln;
+  write b[1];
 }
