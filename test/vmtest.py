@@ -1,81 +1,38 @@
 #!/usr/bin/env python
 
-import subprocess
 import os.path
-# $ pip install pychalk
-from chalk import *
+from testiny import Testiny
 
 # `dirname $0`
 pwd = os.path.realpath(os.path.dirname(__file__))
-# pl0 VM's path
-VM_PATH = pwd + '/../vm/pl0vm'
+
 # pl0 test files' path
-EX_PATH = pwd +'/../examples'
+TARGET = pwd +'/../examples/pl0/*'
 
-# test cases
-# <filename> <stdins> <stdouts>
-cases = [
-    ('q1', [1, 2], [3]),
-    ('q2', [1, 2, 3], [6]),
-    ('q3', [1, 2, 3], [7]),
-    ('q4', [15, 5], [5]),
-    ('q5', [18, 6], [18]),
-    ('q6', [10], [55]),
-    ('q7', [1, 3, 8, 4, 2, 8, 5, 7, 9, 0], [9]),
-    ('q8', [4, 6, 2, 3, 1], [1, 2, 3, 4, 6]),
-    ('q9', [3], [19]),
-    ('q10', [1, 1], [4]),
-    ('q11', [5], [8]),
-    ('q12', [3], [27]),
-    ('q13', [2], [3]),
-]
+env = {
+    # pl0 VM's path
+    'vm': pwd + '/../vm/pl0vm'
+}
 
-# inputs case to echo string
-def escape(inputs):
-    return '\"' + "\\n".join(map(str, inputs)) + '\\n\"'
+cases = {
+    'q1.pl0': [[1, 2], [3]],
+    'q2.pl0': [[1, 2, 3], [6]],
+    'q3.pl0': [[1, 2, 3], [7]],
+    'q4.pl0': [[15, 5], [5]],
+    'q5.pl0': [[18, 6], [18]],
+    'q6.pl0': [[10], [55]],
+    'q7.pl0': [[1, 3, 8, 4, 2, 8, 5, 7, 9, 0], [9]],
+    'q8.pl0': [[4, 6, 2, 3, 1], [1, 2, 3, 4, 6]],
+    'q9.pl0': [[3], [19]],
+    'q10.pl0': [[1, 1], [4]],
+    'q11.pl0': [[5], [8]],
+    'q12.pl0': [[3], [27]],
+    'q13.pl0': [[2], [3]],
+}
 
-# stdout bytes to \n splitted int array
-def unescape(stdout):
-    l = stdout.decode("utf-8").strip().split("\n")
-    try:
-        return list(map(int, l))
-    except:
-        return []
+class Test(Testiny):
+    def pipeline(self, path, inputs):
+        stdout = self.exec('$vm %s' % path, self.escape_inputs(inputs))
+        return self.unescape_outouts(stdout)
 
-passed_count = 0
-for (name, inputs, expects) in cases:
-    file = name + '.pl0'
-    path = EX_PATH + '/' + file
-    if not os.path.exists(path):
-        print('{} {} not found'.format(red("[Error]"), file))
-        continue
-
-    cmd = "echo {} | {} {}".format(escape(inputs), VM_PATH, path)
-    stdout, stderr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()
-
-    if stderr:
-        print('{} {}'.format(red("[Error]"), red(file)))
-        print(stderr)
-        continue
-
-    # Asseting
-    actual = unescape(stdout)
-
-    if expects == actual:
-        result = green("[Passed]")
-        passed_count += 1
-    else:
-        result = red("[Failed]")
-    
-    print('{} {} (input: {}, expects: {}, actual: {})'.format(
-        result,
-        file, 
-        str(inputs),
-        str(expects),
-        str(actual),
-    ))
-
-print('\n🍺  {} / {} Test passed!'.format(
-    white(passed_count), 
-    white(str(len(cases)))
-))
+Test(TARGET, cases, env).test()
