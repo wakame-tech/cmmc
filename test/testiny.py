@@ -52,7 +52,7 @@ class Testiny:
     def pipeline(path, inputs):
         raise NotImplementedError()
 
-    def test(self):
+    def test(self, verbose=False):
         passed_count = 0
         for path in glob(self.target):
             filename = os.path.basename(path)
@@ -75,9 +75,10 @@ class Testiny:
             else:
                 print('%s' % red('✗ Failed'))
 
-            print('inputs: %s' % inputs)
-            print('expect: %s' % outputs)
-            print('actual: %s' % result)
-            print('')
+            if verbose:
+                print('inputs: %s' % inputs)
+                print('expect: %s' % outputs)
+                print('actual: %s' % result)
+                print('')
         
         print('\n🍺  %s / %s Test passed!' % (passed_count, str(len(self.cases))))

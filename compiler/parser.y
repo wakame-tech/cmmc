@@ -27,6 +27,11 @@ int search_label(char * label) {
   return -1;
 }
 
+// temporary cases holder
+struct case_t { cptr * cond, * stmt; };
+struct case_t cases[100];
+int cases_i = 0;
+
 typedef struct Codeval {
   // 
   cptr* code;
@@ -34,6 +39,8 @@ typedef struct Codeval {
   int val;
   // variable name
   char * name;
+  // case
+
 } codeval;
 
 #define YYSTYPE codeval
@@ -48,6 +55,7 @@ typedef struct Codeval {
 %token NUMBER
 %token IDENT
 %token GOTO LABEL
+%token SWITCH DEFAULT
 
 %left ASN
 %left AND OR
@@ -319,6 +327,7 @@ stmt
   | if_stmt
   | while_stmt
   | for_stmt
+  | switch_stmt
   | GOTO IDENT SEMICOLON {
     // if not exist, issue index
     int k = search_label($2.name);
@@ -362,6 +371,9 @@ stmt
   }
   ;
 
+/* ======
+   if 
+========*/
 if_stmt
   : IF expr THEN stmts END {
     cptr *tmp;
@@ -430,6 +442,63 @@ for_stmt
     tmp = mergecode(tmp, makecode(O_LAB, 0, label1));
     $$.code = tmp;
     $$.val = 0;
+  }
+  ;
+
+/* ===========
+  switch stmt
+==============*/
+switch_stmt
+  : SWITCH cases END {
+    cptr *tmp = NULL;
+    int end_label = makelabel();
+    // TODO code generate
+    for (int i = 0; i < cases_i; i++) {
+      // debug
+      printf("case %d\n", i);
+      dump_node(cases[i].cond);
+      dump_node(cases[i].stmt);
+
+      int next_label = makelabel();
+      // cond
+      tmp = mergecode(tmp, cases[i].cond);
+
+      tmp = mergecode(tmp, makecode(O_JPC, 0, next_label));
+      // stmt
+      tmp = mergecode(tmp, cases[i].stmt);
+      // insert break
+      tmp = mergecode(tmp, makecode(O_JMP, 0, end_label));
+
+      tmp = mergecode(tmp, makecode(O_LAB, 0, next_label));
+    }
+
+    // cleanup temp cases
+    // for (int i = 0; i < cases_i; i++) {
+    //   cases[i].cond = NULL;
+    //   cases[i].stmt = NULL;
+    // }
+    // cases_i = 0;
+
+    $$.val = 0;
+    $$.code = tmp;
+  }
+  ;
+
+cases
+  : cases case
+  | case
+  ;
+
+case
+  : expr COLON stmt {
+    // add case
+    struct case_t c = { .cond = $1.code, .stmt = $3.code };
+    cases[cases_i++] = c;
+  }
+  | /* default */ DEFAULT COLON stmt {
+    // add default case
+    struct case_t c = { .cond = makecode(O_LIT, 0, 1), .stmt = $3.code };
+    cases[cases_i++] = c;
   }
   ;
 
@@ -690,9 +759,6 @@ f_parameter
   }
   ;
 %%
-#ifdef YYDEBUG
-  yydebug = 1;
-#endif
 #include "lex.yy.c"
 
 // int yyerror(const char * s) {

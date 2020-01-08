@@ -21,6 +21,8 @@
 "return" return RETURN;
 "goto" return GOTO;
 "label" return LABEL;
+"switch" return SWITCH;
+"default" return DEFAULT;
 
 ";" return SEMICOLON;
 ":" return COLON;

@@ -12,7 +12,8 @@ class Test(Testiny):
 cases = {
     'array.cmm': [[1, 2, 3, 4], [1, 3, 2, 4]],
     'for.cmm': [[], [3, 2, 1]],
-    'goto.cmm': [[], [1, 2, 3]]
+    'goto.cmm': [[], [1, 2, 3]],
+    'case.cmm': [[4], [0]],
 }
 
 # `dirname $0`

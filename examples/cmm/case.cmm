@@ -1,0 +1,8 @@
+main {
+  var v;
+  read v;
+  switch
+    v == 1: write 1;
+    default: write 0;
+  end
+}
