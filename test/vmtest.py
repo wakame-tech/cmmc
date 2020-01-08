@@ -35,4 +35,5 @@ class Test(Testiny):
         stdout = self.exec('$vm %s' % path, self.escape_inputs(inputs))
         return self.unescape_outouts(stdout)
 
-Test(TARGET, cases, env).test()
+if __name__ == '__main__':
+    Test(TARGET, cases, env).test()
