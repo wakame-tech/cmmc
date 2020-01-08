@@ -2,6 +2,9 @@ ref
 .vscode
 __pycache__
 
+# secret
+report.md
+
 # generated
 *.output
 *.tab.c
