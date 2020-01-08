@@ -23,6 +23,7 @@
 "label" return LABEL;
 
 ";" return SEMICOLON;
+":" return COLON;
 "," return COMMA;
 
 "++" return INC;

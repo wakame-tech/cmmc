@@ -12,6 +12,7 @@ class Test(Testiny):
 cases = {
     'array.cmm': [[1, 2, 3, 4], [1, 3, 2, 4]],
     'for.cmm': [[], [3, 2, 1]],
+    'goto.cmm': [[], [1, 2, 3]]
 }
 
 # `dirname $0`
@@ -27,4 +28,5 @@ env = {
 # test file path
 TARGET = pwd + '/../examples/cmm/*'
 
-Test(TARGET, cases, env).test()
+if __name__ == '__main__':
+    Test(TARGET, cases, env).test()

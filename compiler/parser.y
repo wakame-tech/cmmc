@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "env.h"
 #include "code.h"
 
@@ -10,7 +11,21 @@ int yylex();
 int yyerror(const char * s);
 
 int level = 0;
-int offset = 0; 
+int offset = 0;
+
+// label and index dict
+struct label_t { int k; char * v; };
+struct label_t labels[100];
+int labels_i = 0;
+
+int search_label(char * label) {
+  for (int i = 0; i < labels_i; i++) {
+    if (strcmp(labels[i].v, label) == 0)  {
+      return labels[i].k;
+    }
+  }
+  return -1;
+}
 
 typedef struct Codeval {
   // 
@@ -27,7 +42,7 @@ typedef struct Codeval {
 
 %token VAR MAIN IF THEN ELSE BGN END WHILE DO FOR RETURN
 %token READ WRITE WRITELN
-%token SEMICOLON COMMA
+%token SEMICOLON COMMA COLON
 %token INC DEC PLUS MINUS MULT DIV ASN MOD POW EQ NE LT GT LE GE AND OR NOT
 %token L_PAREN R_PAREN L_BRACKET R_BRACKET L_SQBRACKET R_SQBRACKET
 %token NUMBER
@@ -59,6 +74,9 @@ program
 		tmp = mergecode(tmp, makecode(O_INT, 0, $2.val + SYSTEM_AREA));
 		tmp = mergecode(tmp, $2.code);
 		tmp = mergecode(tmp, makecode(O_OPR, 0, 0));
+
+    // TODO bind goto and labels' index
+    // int i = search_label($2.name)
 
 		printcode(ofile, tmp);
   }
@@ -301,12 +319,32 @@ stmt
   | if_stmt
   | while_stmt
   | for_stmt
-  | GOTO IDENT {
-    // TODO search label index
-    $$.code = makecode(O_JMP, 0, 1);
+  | GOTO IDENT SEMICOLON {
+    // if not exist, issue index
+    int k = search_label($2.name);
+    if (k == -1) {
+      k = makelabel();
+      struct label_t l = { .k = k, .v = $2.name };
+      labels[labels_i++] = l;
+      $$.code = makecode(O_JMP, 0, k);
+      printf("goto %s is %d\n", $2.name, k);
+    } else {
+      $$.code = makecode(O_JMP, 0, k);
+      printf("goto %s is %d\n", $2.name, k);
+    }
   }
-  | LABEL IDENT {
-    $$.code = makecode(O_LAB, 0, makelabel());
+  | LABEL IDENT COLON {
+    int k = search_label($2.name);
+    if (k == -1) {
+      k = makelabel();
+      struct label_t l = { .k = k, .v = $2.name };
+      labels[labels_i++] = l;
+      $$.code = makecode(O_LAB, 0, k);
+      printf("label %s is %d\n", $2.name, k);
+    } else {
+      $$.code = makecode(O_LAB, 0, k);
+      printf("label %s is %d\n", $2.name, k);
+    }
   }
   | {
     addlist("block", BLOCK, 0, 0, 0, 0);
@@ -652,7 +690,9 @@ f_parameter
   }
   ;
 %%
-
+#ifdef YYDEBUG
+  yydebug = 1;
+#endif
 #include "lex.yy.c"
 
 // int yyerror(const char * s) {
