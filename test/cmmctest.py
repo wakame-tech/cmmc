@@ -14,6 +14,7 @@ cases = {
     'for.cmm': [[], [3, 2, 1]],
     'goto.cmm': [[], [1, 2, 3]],
     'case.cmm': [[4], [0]],
+    'pow.cmm': [[2], [16]],
 }
 
 # `dirname $0`

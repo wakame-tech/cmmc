@@ -580,6 +580,9 @@ expr
     */
     $$.code = mergecode(mergecode($1.code, $3.code), makecode(O_OPR, 0, 7));
   }
+  | expr POW expr {
+    $$.code = mergecode(mergecode($1.code, $3.code), makecode(O_OPR, 0, 17));
+  }
   | expr GT expr {
     $$.code = mergecode(mergecode($1.code, $3.code),makecode(O_OPR, 0, 12));
   }

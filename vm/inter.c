@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "common.h"
 #include "code.h"
 
@@ -106,6 +107,7 @@ void interpreter() {
           case P_AND: --t;  s[t] = ( s[t] && s[t+1] )    ;  break;
           case P_OR:  --t;  s[t] = ( s[t] || s[t+1] )    ;  break;
           case P_NOT:    ;  s[t] = s[t] ? 0 : 1       ;  break;
+          case P_POW: --t;  s[t] = (int)pow(s[t], s[t+1]) ; break;
         }
         break;
       case O_LOD:

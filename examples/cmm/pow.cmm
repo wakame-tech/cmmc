@@ -1,3 +1,6 @@
 main {
-    write 2 ^ 10
+    var i;
+    read i;
+    write i ^ 4;
+    writeln;
 }
