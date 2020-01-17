@@ -360,7 +360,6 @@ stmt
   }
   | RETURN expr SEMICOLON {
     list* tmp2;
-
     tmp2 = searchf(level);
 
     $$.code = mergecode($2.code, makecode(O_RET, 0, tmp2->params));
@@ -430,7 +429,7 @@ while_stmt
         FOR
 ======================= */
 for_stmt
-  : FOR init SEMICOLON expr SEMICOLON expr DO stmts END {
+  : FOR expr SEMICOLON expr SEMICOLON expr DO stmts END {
     int label0 = makelabel(), label1 = makelabel();
     cptr * tmp;
     tmp = mergecode($2.code, makecode(O_LAB, 0, label0));
@@ -449,19 +448,37 @@ for_stmt
   switch stmt
 ==============*/
 switch_stmt
-  : SWITCH cases END {
+  : SWITCH IDENT DO cases END {
     cptr *tmp = NULL;
     int end_label = makelabel();
+    list* tmpl;
+
+    tmpl = search_all($2.name);
+    if (tmpl == NULL){
+      sem_error2("id");
+    }
+
+    if (tmpl->kind != VARIABLE){
+      sem_error2("id as variable");
+    }
+
     // TODO code generate
     for (int i = 0; i < cases_i; i++) {
-      // debug
-      printf("case %d\n", i);
-      dump_node(cases[i].cond);
-      dump_node(cases[i].stmt);
-
       int next_label = makelabel();
       // cond
-      tmp = mergecode(tmp, cases[i].cond);
+      if (cases[i].cond == NULL) {
+        // default branch
+        // printf("default\n");
+        // dump_node(cases[i].stmt);
+        tmp = mergecode(tmp, makecode(O_LIT, 0, 1));
+      } else {
+        // printf("case %d\n", i);
+        // dump_node(cases[i].cond);
+        // dump_node(cases[i].stmt);
+        tmp = mergecode(tmp, makecode(O_LOD, level - tmpl->l, tmpl->a));
+        tmp = mergecode(tmp, cases[i].cond);
+        tmp = mergecode(tmp, makecode(O_OPR, 0, 8));
+      }
 
       tmp = mergecode(tmp, makecode(O_JPC, 0, next_label));
       // stmt
@@ -472,12 +489,14 @@ switch_stmt
       tmp = mergecode(tmp, makecode(O_LAB, 0, next_label));
     }
 
+    tmp = mergecode(tmp, makecode(O_LAB, 0, end_label));
+
     // cleanup temp cases
-    // for (int i = 0; i < cases_i; i++) {
-    //   cases[i].cond = NULL;
-    //   cases[i].stmt = NULL;
-    // }
-    // cases_i = 0;
+    for (int i = 0; i < cases_i; i++) {
+      cases[i].cond = NULL;
+      cases[i].stmt = NULL;
+    }
+    cases_i = 0;
 
     $$.val = 0;
     $$.code = tmp;
@@ -497,16 +516,16 @@ case
   }
   | /* default */ DEFAULT COLON stmt {
     // add default case
-    struct case_t c = { .cond = makecode(O_LIT, 0, 1), .stmt = $3.code };
+    struct case_t c = { .cond = NULL, .stmt = $3.code };
     cases[cases_i++] = c;
   }
   ;
 
-init
-  : expr {
-    $$.code = $1.code;
-    $$.val = 0;
-  }
+// init
+//   : expr {
+//     $$.code = $1.code;
+//     $$.val = 0;
+//   }
 
 /* =======
    expr

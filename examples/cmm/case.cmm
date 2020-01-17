@@ -1,8 +1,15 @@
 main {
   var v;
   read v;
-  switch
-    v == 1: write 1;
+  switch v do
+    1: 1;
+    2: 3;
+    default: 0;
+  end
+
+  switch v do
+    1: write 1;
+    2: write 3;
     default: write 0;
   end
 }
