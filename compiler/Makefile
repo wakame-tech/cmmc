@@ -2,7 +2,7 @@ CC	= cc
 OPTS = -std=c99
 
 cmmc	: y.tab.c code.o env.o
-	$(CC) y.tab.c code.o env.o -ly -ll -o cmmc
+	$(CC) $(OPTS) y.tab.c code.o env.o -ly -ll -o cmmc
 
 y.tab.c	: parser.y lex.yy.c
 	yacc -dv parser.y
