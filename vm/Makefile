@@ -3,7 +3,7 @@ CC	= cc
 pl0vm	: inter.o  common.o
 	$(CC) inter.o  common.o -o pl0vm
 
-myinter2.o	: inter.c
+inter.o	: inter.c
 	$(CC) -c inter.c
 
 common.o	: common.c
