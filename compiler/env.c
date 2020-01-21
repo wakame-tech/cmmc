@@ -56,6 +56,25 @@ list *search_block(char* name){
   return NULL;
 }
 
+// label and index dict
+struct label_t { int k; char * v; };
+struct label_t labels[100];
+int labels_i = 0;
+
+void add_label(int n, char * label) {
+  struct label_t l = { .k = n, .v = label };
+  labels[labels_i++] = l;
+}
+
+int search_label(char * label) {
+  for (int i = 0; i < labels_i; i++) {
+    if (strcmp(labels[i].v, label) == 0)  {
+      return labels[i].k;
+    }
+  }
+  return -1;
+}
+
 void delete_block(){
   list *tmp;
 

@@ -11,4 +11,4 @@ common.o	: common.c
 	$(CC) $(OPTS) -c common.c
 
 clean:	
-	rm -f *~ *.o vm
+	rm -f *~ *.o vm pl0vm

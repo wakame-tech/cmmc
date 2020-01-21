@@ -17,4 +17,4 @@ lex.yy.c	: lexer.l
 	lex -l lexer.l
 
 clean:
-	rm -f *~ *.o
+	rm -f *~ *.o a.out cmmc lex.yy.c y.*

@@ -14,8 +14,6 @@ report.md
 # bin
 vm/pl0vm
 compiler/cmmc
-test/pl0dc
-test/pl0dm
 
 # output
 *.o

@@ -25,6 +25,8 @@ struct LIST {
 list* search_block(char*);
 list* search_all(char*);
 list* searchf(int);
+void add_label(int n, char * label);
+int search_label(char * label);
 void addlist(char*, int, int, int, int, int);
 void delete_block();
 
